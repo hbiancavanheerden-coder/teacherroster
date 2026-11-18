@@ -1,0 +1,157 @@
+rules_version = '2';
+
+// Staffboard multi-tenant security model
+// ---------------------------------------
+// * Every school's data lives under /schools/{schoolId}/... and is readable
+//   ONLY by users who have a membership document at
+//   /schools/{schoolId}/members/{uid}. There is no cross-school access.
+// * Memberships, school creation, billing fields, invites and share links are
+//   written ONLY by Netlify Functions (Admin SDK bypasses these rules).
+// * Writes require an active subscription or trial (billing.accessUntil in
+//   the future). Expired workspaces stay readable so data is never held hostage.
+// * Roles: owner > admin > teacher. Teachers can read everything in their
+//   school but only change their own absences, swap requests and notifications.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function memberPath(sid) { return /databases/$(database)/documents/schools/$(sid)/members/$(request.auth.uid); }
+    function isMember(sid) { return signedIn() && exists(memberPath(sid)); }
+    function me(sid) { return get(memberPath(sid)).data; }
+    function isAdmin(sid) { return isMember(sid) && me(sid).role in ['owner', 'admin']; }
+    function school(sid) { return get(/databases/$(database)/documents/schools/$(sid)).data; }
+    function active(sid) { return school(sid).billing.accessUntil > request.time; }
+    function feature(sid, f) { return school(sid).billing.features[f] == true; }
+    function myStaffId(sid) { return me(sid).get('staffId', ''); }
+    function onlyChanges(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+    function adminWrite(sid) { return isAdmin(sid) && active(sid); }
+
+    // ---------- User profiles ----------
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['displayName', 'email', 'prefs', 'activeSchoolId', 'createdAt', 'updatedAt']);
+      allow update: if signedIn() && request.auth.uid == uid
+        && onlyChanges(['displayName', 'prefs', 'activeSchoolId', 'updatedAt'])
+        && (!('activeSchoolId' in request.resource.data) || request.resource.data.activeSchoolId == null
+            || isMember(request.resource.data.activeSchoolId));
+      allow delete: if false;
+    }
+
+    // ---------- Server-only collections ----------
+    match /invites/{id} { allow read, write: if false; }
+    match /links/{id} { allow read, write: if false; }
+    match /billingCustomers/{id} { allow read, write: if false; }
+    match /billingCheckouts/{id} { allow read, write: if false; }
+
+    // ---------- School workspace ----------
+    match /schools/{sid} {
+      allow read: if isMember(sid);
+      allow create, delete: if false;
+      allow update: if adminWrite(sid)
+        && onlyChanges(['name', 'settings', 'timezone', 'updatedAt']);
+
+      match /members/{uid} {
+        allow read: if isMember(sid);
+        allow create: if false;
+        allow update: if isAdmin(sid)
+          && resource.data.role != 'owner'
+          && uid != request.auth.uid
+          && onlyChanges(['role'])
+          && request.resource.data.role in ['admin', 'teacher'];
+        allow delete: if (isAdmin(sid) || uid == request.auth.uid) && resource.data.role != 'owner';
+      }
+
+      match /staff/{id} {
+        allow read: if isMember(sid);
+        allow create, delete: if adminWrite(sid);
+        allow update: if adminWrite(sid)
+          || (isMember(sid) && active(sid) && resource.data.get('uid', '') == request.auth.uid
+              && onlyChanges(['phone', 'updatedAt']));
+      }
+
+      match /dutyCategories/{id} {
+        allow read: if isMember(sid);
+        allow write: if adminWrite(sid);
+      }
+      match /duties/{id} {
+        allow read: if isMember(sid);
+        allow write: if adminWrite(sid);
+      }
+      match /events/{id} {
+        allow read: if isMember(sid);
+        allow write: if adminWrite(sid);
+      }
+      match /terms/{id} {
+        allow read: if isMember(sid);
+        allow write: if adminWrite(sid);
+      }
+      match /timetable/{id} {
+        allow read: if isMember(sid);
+        allow write: if adminWrite(sid) && feature(sid, 'timetable');
+      }
+      match /announcements/{id} {
+        allow read: if isMember(sid);
+        allow write: if adminWrite(sid);
+      }
+
+      // Teachers may report their own absence; admins manage all absences.
+      match /absences/{id} {
+        allow read: if isMember(sid);
+        allow create: if active(sid) && feature(sid, 'absences') && (
+          isAdmin(sid) || (
+            isMember(sid)
+            && request.resource.data.staffId == myStaffId(sid)
+            && request.resource.data.status == 'reported'
+            && request.resource.data.createdBy == request.auth.uid));
+        allow update: if active(sid) && (isAdmin(sid) || (
+            resource.data.createdBy == request.auth.uid && resource.data.status == 'reported'
+            && request.resource.data.status in ['reported', 'cancelled']
+            && onlyChanges(['start', 'end', 'reason', 'status', 'updatedAt'])));
+        allow delete: if isAdmin(sid);
+      }
+
+      // Duty swaps: requester -> target accepts/declines -> admin approves.
+      match /swapRequests/{id} {
+        allow read: if isMember(sid);
+        allow create: if isMember(sid) && active(sid) && feature(sid, 'swaps')
+          && request.resource.data.status == 'pending'
+          && request.resource.data.fromStaffId == myStaffId(sid)
+          && request.resource.data.createdBy == request.auth.uid
+          && get(/databases/$(database)/documents/schools/$(sid)/duties/$(request.resource.data.dutyId)).data.staffId == myStaffId(sid);
+        allow update: if isMember(sid) && active(sid) && (
+          isAdmin(sid)
+          || (resource.data.toStaffId == myStaffId(sid) && resource.data.status == 'pending'
+              && request.resource.data.status in ['accepted', 'declined'] && onlyChanges(['status', 'respondedAt']))
+          || (resource.data.createdBy == request.auth.uid && resource.data.status in ['pending', 'accepted']
+              && request.resource.data.status == 'cancelled' && onlyChanges(['status', 'respondedAt'])));
+        allow delete: if isAdmin(sid);
+      }
+
+      // Notifications are created by Netlify Functions; recipients mark them read.
+      match /notifications/{id} {
+        allow read: if signedIn() && resource.data.toUid == request.auth.uid;
+        allow update: if signedIn() && resource.data.toUid == request.auth.uid && onlyChanges(['read']);
+        allow delete: if signedIn() && resource.data.toUid == request.auth.uid;
+        allow create: if false;
+      }
+
+      // Document imports are created by Netlify Functions; admins read them and mark them imported.
+      match /imports/{id} {
+        allow read: if isAdmin(sid);
+        allow update: if isAdmin(sid) && onlyChanges(['status']) && request.resource.data.status in ['imported', 'discarded'];
+        allow create, delete: if false;
+      }
+
+      // Append-only audit trail.
+      match /auditLogs/{id} {
+        allow read: if isAdmin(sid);
+        allow create: if isMember(sid)
+          && request.resource.data.actorUid == request.auth.uid
+          && request.resource.data.at == request.time;
+        allow update, delete: if false;
+      }
+    }
+  }
+}
