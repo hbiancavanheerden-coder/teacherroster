@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { where } from 'firebase/firestore';
-import { useCollection } from '../lib/data.js';
+import { useCollection, where } from '../lib/data.js';
 import { useSchool } from '../context/SchoolContext.jsx';
 import { expandEvents } from '../lib/events.js';
 

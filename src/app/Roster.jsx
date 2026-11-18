@@ -274,12 +274,10 @@ function GenerateModal({ onClose, defaultFrom, terms, events, absences, onDone }
   const valid = from && to && from <= to && eachDay(from, to).length <= 200;
 
   const build = () => run(async () => {
-    const { getDocs, query, where } = await import('firebase/firestore');
-    const { col } = await import('../lib/data.js');
+    const { fetchCollection, where } = await import('../lib/data.js');
     // Prior load this term (for balancing) and existing duties in the range.
     const termStart = terms.find((t) => t.start <= from && t.end >= from)?.start || addDays(from, -90);
-    const snap = await getDocs(query(col(s.sid, 'duties'), where('date', '>=', termStart), where('date', '<=', to)));
-    const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const all = await fetchCollection(s.sid, 'duties', [where('date', '>=', termStart), where('date', '<=', to)]);
     const inRange = all.filter((d) => d.date >= from);
     const prior = {};
     all.filter((d) => d.date < from).forEach((d) => { prior[d.staffId] = (prior[d.staffId] || 0) + 1; });

@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { orderBy } from 'firebase/firestore';
 import { useSchool } from '../context/SchoolContext.jsx';
-import { useCollection } from '../lib/data.js';
+import { useCollection, orderBy } from '../lib/data.js';
 import { fmtMed } from '../lib/dates.js';
 import { api } from '../lib/api.js';
 import { Empty, useAction } from '../components/ui.jsx';

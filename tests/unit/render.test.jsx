@@ -79,8 +79,8 @@ describe('app pages render', () => {
     });
   }
   it('marketing pages render', () => {
-    expect(render(<Home />, 'owner')).toContain('builds itself');
-    expect(render(<Pricing />, 'owner')).toContain('R499');
+    expect(render(<Home />, 'owner')).toContain('build themselves');
+    expect(render(<Pricing />, 'owner')).toContain('R599');
   });
 });
 

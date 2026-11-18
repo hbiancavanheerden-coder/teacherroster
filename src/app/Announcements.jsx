@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { orderBy, limit } from 'firebase/firestore';
 import { useSchool } from '../context/SchoolContext.jsx';
-import { useCollection } from '../lib/data.js';
+import { useCollection, orderBy, limit } from '../lib/data.js';
 import { api } from '../lib/api.js';
 import { Modal, Field, Empty, Icon, useAction, useConfirm } from '../components/ui.jsx';
 

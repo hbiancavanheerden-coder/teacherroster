@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { where, limit } from 'firebase/firestore';
 import { useSchool } from '../context/SchoolContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { useCollection } from '../lib/data.js';
+import { useCollection, where, limit } from '../lib/data.js';
 import { Icon } from '../components/ui.jsx';
 import { Brand } from '../marketing/MarketingLayout.jsx';
+import { Avatar } from '../components/RegisterCard.jsx';
+import { demo } from '../demo/store.js';
+
+// The SaaS owner (you). UI hint only; the server checks PLATFORM_ADMIN_EMAILS.
+export function isPlatformOwner(user) {
+  if (demo.on) return demo.persona === 'owner';
+  const list = String(import.meta.env.VITE_PLATFORM_ADMIN_EMAILS || '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+  return Boolean(user?.email && list.includes(user.email.toLowerCase()));
+}
 
 const NAV = [
   { group: 'Daily', items: [
@@ -35,7 +43,7 @@ const TITLES = {
   '/app/timetable': 'Timetable', '/app/swaps': 'Duty swaps', '/app/absences': 'Absences & substitutes',
   '/app/announcements': 'Announcements', '/app/staff': 'Staff', '/app/terms': 'Term dates', '/app/reports': 'Reports',
   '/app/audit': 'Audit log', '/app/settings': 'Settings', '/app/billing': 'Billing', '/app/account': 'My account',
-  '/app/notifications': 'Notifications', '/app/onboarding': 'New workspace',
+  '/app/notifications': 'Notifications', '/app/onboarding': 'New workspace', '/app/platform': 'Platform overview',
 };
 
 function daysLeft(ts) {
@@ -66,13 +74,26 @@ export default function AppLayout({ children }) {
     banner = <div className="banner warn no-print">We couldn’t process the last payment. {s.isAdmin && <Link to="/app/billing">Update your card</Link>}</div>;
   }
 
+  if (demo.on) {
+    const other = demo.persona === 'owner' ? 'teacher' : 'owner';
+    banner = (
+      <div className="banner demo no-print">
+        <b>Live demo</b><span style={{ opacity: .8 }}>Sample school. Changes stay in this browser tab.</span>
+        <span className="spacer" />
+        <span className="small" style={{ opacity: .85 }}>Viewing as {demo.persona === 'owner' ? 'the principal (owner)' : 'a teacher'}</span>
+        <button className="btn sm glass" onClick={() => { demo.setPersona(other); nav('/app'); }}>Switch to {other} view</button>
+        <Link to="/register" className="btn sm light" onClick={() => demo.stop()}>Start free trial</Link>
+      </div>
+    );
+  }
+
   const schools = Object.entries(s.profile?.schools || {});
   const title = TITLES[loc.pathname] || 'Staffboard';
 
   return (
     <div className="app">
       <aside className={'sidebar' + (open ? ' open' : '')} aria-label="App navigation">
-        <div className="row between"><Brand to="/app" /><button className="icon-btn mobile-only" style={{ color: '#fff' }} onClick={() => setOpen(false)} aria-label="Close menu"><Icon name="x" /></button></div>
+        <div className="row between"><Brand to="/app" /><button className="icon-btn mobile-only" onClick={() => setOpen(false)} aria-label="Close menu"><Icon name="x" /></button></div>
         {schools.length > 1 ? (
           <select className="school-switch" value={s.sid} onChange={(e) => s.switchSchool(e.target.value)} aria-label="Switch workspace">
             {schools.map(([id, x]) => <option key={id} value={id}>{x.name}</option>)}
@@ -89,10 +110,16 @@ export default function AppLayout({ children }) {
             ))}
           </div>
         ))}
+        {isPlatformOwner(user) && (
+          <div className="nav-group">
+            <div className="nav-label">Platform owner</div>
+            <NavLink to="/app/platform" className="nav-link"><Icon name="chart" />MRR &amp; users</NavLink>
+          </div>
+        )}
         <div className="spacer" />
         <div className="nav-group">
           <NavLink to="/app/notifications" className="nav-link"><Icon name="bell" />Notifications{unread.data.length > 0 && <span className="count">{unread.data.length}</span>}</NavLink>
-          <NavLink to="/app/account" className="nav-link"><Icon name="user" />{s.member.name || user.email}</NavLink>
+          <NavLink to="/app/account" className="nav-link"><Avatar name={s.member.name || user.email} size={20} /><span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.member.name || user.email}</span></NavLink>
           {s.isOwner && <NavLink to="/app/onboarding" className="nav-link"><Icon name="plus" />New workspace</NavLink>}
           <button className="nav-link" style={{ background: 'none', border: 0, cursor: 'pointer', width: '100%' }} onClick={async () => { await signOut(); nav('/'); }}><Icon name="logout" />Sign out</button>
         </div>
@@ -109,7 +136,7 @@ export default function AppLayout({ children }) {
           </Link>
         </header>
         {banner}
-        <div className="content">{children}</div>
+        <div className="content page-enter" key={loc.pathname}>{children}</div>
       </div>
       <nav className="bottom-nav no-print" aria-label="Quick navigation">
         <NavLink to="/app" end><Icon name="home" />Today</NavLink>

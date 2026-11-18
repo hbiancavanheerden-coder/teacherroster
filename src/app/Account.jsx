@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, sendEmailVerification } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../lib/firebase.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useSchool } from '../context/SchoolContext.jsx';
-import { useDoc } from '../lib/data.js';
+import { useDoc, docSet, now } from '../lib/data.js';
 import { api } from '../lib/api.js';
 import { Field, useAction, useConfirm } from '../components/ui.jsx';
 
@@ -27,15 +25,14 @@ export default function Account({ bare }) {
   const [confirm, confirmNode] = useConfirm();
   const prefs = { duties: true, digest: true, swaps: true, announcements: true, ...(profile.data?.prefs?.email || {}) };
   const isPasswordUser = user.providerData.some((p) => p.providerId === 'password');
-  const userRef = () => doc(db, 'users', user.uid);
 
   const saveName = () => run(async () => {
     if (!name.trim()) throw new Error('Please enter your name.');
     await updateProfile(user, { displayName: name.trim() });
-    await setDoc(userRef(), { displayName: name.trim(), updatedAt: serverTimestamp(), ...(profile.data ? {} : { email: user.email }) }, { merge: true });
+    await docSet(['users', user.uid], { displayName: name.trim(), updatedAt: now(), ...(profile.data ? {} : { email: user.email }) });
   }, 'Name updated');
 
-  const setPref = (k, v) => run(() => setDoc(userRef(), { prefs: { email: { ...prefs, [k]: v } }, updatedAt: serverTimestamp(), ...(profile.data ? {} : { email: user.email }) }, { merge: true }), 'Preferences saved');
+  const setPref = (k, v) => run(() => docSet(['users', user.uid], { prefs: { email: { ...prefs, [k]: v } }, updatedAt: now(), ...(profile.data ? {} : { email: user.email }) }), 'Preferences saved');
 
   const changePw = () => run(async () => {
     if (pw.next.length < 8) throw new Error('Use at least 8 characters.');

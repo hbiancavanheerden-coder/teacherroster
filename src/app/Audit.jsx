@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { orderBy, limit } from 'firebase/firestore';
 import { useSchool } from '../context/SchoolContext.jsx';
-import { useCollection } from '../lib/data.js';
+import { useCollection, orderBy, limit } from '../lib/data.js';
 import { toCSV, download } from '../lib/csv.js';
 import { Empty, Icon } from '../components/ui.jsx';
 

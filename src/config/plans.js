@@ -10,8 +10,8 @@ export const PLANS = {
     id: 'solo',
     name: 'Teacher',
     tagline: 'For the teacher who runs the roster',
-    monthly: 59,
-    annual: 590,
+    monthly: 99,
+    annual: 990,
     seats: 1, // number of login accounts
     features: {
       invites: false,
@@ -34,9 +34,9 @@ export const PLANS = {
     id: 'school',
     name: 'School',
     tagline: 'For schools that want every teacher connected',
-    monthly: 499,
-    annual: 4990,
-    seats: 60,
+    monthly: 599,
+    annual: 5990,
+    seats: 150,
     popular: true,
     features: {
       invites: true,
@@ -49,39 +49,17 @@ export const PLANS = {
     },
     highlights: [
       'Everything in Teacher',
-      'Up to 60 staff accounts',
+      'Up to 150 staff accounts',
+      'AI import of existing rosters and timetables',
       'Duty swap requests with approval',
       'Email notifications and morning digests',
       'Absence and substitute management',
       'Audit log and workload reports',
     ],
   },
-  plus: {
-    id: 'plus',
-    name: 'School Plus',
-    tagline: 'For large and combined schools',
-    monthly: 999,
-    annual: 9990,
-    seats: 200,
-    features: {
-      invites: true,
-      emailNotifications: true,
-      swaps: true,
-      timetable: true,
-      absences: true,
-      auditLog: true,
-      publicRoster: true,
-    },
-    highlights: [
-      'Everything in School',
-      'Up to 200 staff accounts',
-      'Priority email support',
-      'Help importing your existing rosters',
-    ],
-  },
 };
 
-export const PLAN_ORDER = ['solo', 'school', 'plus'];
+export const PLAN_ORDER = ['solo', 'school'];
 
 // During the free trial a workspace gets School features.
 export function effectivePlan(billing) {

@@ -63,9 +63,13 @@ export async function handleItn(itn) {
     }
     await updateBilling(schoolId, {
       plan, status: 'active', accessUntilMs,
-      extra: { interval, token, provider: 'payfast', lastPaymentAt: new Date(), lastReference: itn.pf_payment_id || null, cancelAtPeriodEnd: false, nextPaymentDate: new Date(accessUntilMs - GRACE_DAYS * DAY).toISOString().slice(0, 10) },
+      extra: { interval, token, provider: 'payfast', amount: gross, lastPaymentAt: new Date(), lastReference: itn.pf_payment_id || null, cancelAtPeriodEnd: false, nextPaymentDate: new Date(accessUntilMs - GRACE_DAYS * DAY).toISOString().slice(0, 10) },
     }, `Payment received (${PLANS[plan].name}, ${interval}) – R${gross.toFixed(2)}`);
     if (ctx.ref) await ctx.ref.update({ status: 'paid', token, paidAt: FieldValue.serverTimestamp() });
+    // Revenue ledger for the platform owner dashboard (idempotent per PayFast payment id).
+    await fs.collection('payments').doc(String(itn.pf_payment_id || itn.m_payment_id + '-' + Date.now())).set({
+      schoolId, plan, interval, amount: gross, at: FieldValue.serverTimestamp(), provider: 'payfast',
+    }, { merge: true });
     return 'activated';
   }
 

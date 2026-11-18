@@ -88,7 +88,7 @@ export default function Features() {
     <>
       <section className="section narrow center">
         <div className="eyebrow">Features</div>
-        <h1>Built around how South African schools actually run.</h1>
+        <h1 style={{ fontSize: 'clamp(34px, 5vw, 58px)' }}>Built around how South African schools <em className="serif-i">actually</em> run.</h1>
         <p className="lead" style={{ margin: '0 auto' }}>Phases, gate and taxi duty, devotions, sport afternoons, and the admin that comes with them. Staffboard fits the way your staffroom already works.</p>
       </section>
       <section className="section" style={{ paddingTop: 0 }}>

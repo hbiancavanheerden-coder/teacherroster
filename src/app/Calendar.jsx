@@ -213,9 +213,8 @@ function EventModal({ ev, onClose }) {
 
   const saveTemplate = () => run(async () => {
     const t = { title: f.title, type: f.type, phase: f.phase, allDay: f.allDay, startTime: f.startTime, endTime: f.endTime, location: f.location, remindDaysBefore: f.remindDaysBefore };
-    const { doc, updateDoc } = await import('firebase/firestore');
-    const { db } = await import('../lib/firebase.js');
-    await updateDoc(doc(db, 'schools', s.sid), { 'settings.eventTemplates': [...savedTemplates.filter((x) => x.title !== t.title), t].slice(-20) });
+    const { docUpdate } = await import('../lib/data.js');
+    await docUpdate(['schools', s.sid], { 'settings.eventTemplates': [...savedTemplates.filter((x) => x.title !== t.title), t].slice(-20) });
   }, 'Saved as template');
 
   if (!canEdit) {

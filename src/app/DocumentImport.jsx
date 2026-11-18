@@ -1,10 +1,8 @@
 // "Import from document": upload a PDF / Word / Excel / photo of an existing duty roster or timetable,
 // let Claude read it, then review and confirm every name before anything is saved.
 import { useMemo, useState } from 'react';
-import { getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase.js';
 import { useSchool } from '../context/SchoolContext.jsx';
-import { useDoc, col, ref } from '../lib/data.js';
+import { useDoc, ref, fetchCollection, where, docUpdate } from '../lib/data.js';
 import { api } from '../lib/api.js';
 import { matchStaff, matchByName, matchPeriod } from '../lib/matching.js';
 import { fmtMed, WEEKDAYS } from '../lib/dates.js';
@@ -139,7 +137,7 @@ function Warnings({ imp }) {
 }
 
 async function markImported(sid, importId) {
-  await updateDoc(doc(db, 'schools', sid, 'imports', importId), { status: 'imported' });
+  await docUpdate(['schools', sid, 'imports', importId], { status: 'imported' });
 }
 
 // ---------- roster review ----------
@@ -172,8 +170,7 @@ export function RosterReview({ imp, importId, onDone, onRetry }) {
       ops.push({ type: 'set', coll: 'dutyCategories', id, data: { name: r.raw.trim(), order: order++, staffNeeded: 1, days: [1, 2, 3, 4, 5], phase: 'all', active: true, color: '#1E2638', startTime: sample.startTime || '', endTime: sample.endTime || '' } });
     }
     // Existing duties in the same date range
-    const snap = await getDocs(query(col(s.sid, 'duties'), where('date', '>=', from), where('date', '<=', to)));
-    const existing = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const existing = await fetchCollection(s.sid, 'duties', [where('date', '>=', from), where('date', '<=', to)]);
     const rows = usable.map((d) => ({ date: d.date, categoryId: catIds[d.dutyPoint], staffId: staffIds[d.staffName], note: d.note || '' }));
     const slots = new Set(rows.map((r) => r.date + '|' + r.categoryId));
     if (replace) existing.filter((e) => slots.has(e.date + '|' + e.categoryId)).forEach((e) => ops.push({ type: 'delete', coll: 'duties', id: e.id }));
@@ -249,8 +246,8 @@ export function TimetableReview({ imp, importId, onDone, onRetry }) {
     const rows = usable.map((l) => ({ staffId: staffIds[l.staffName], day: Number(l.day), periodIndex: Number(periodMap.mapping[periodKey(l)]), className: l.className.trim(), subject: (l.subject || '').trim(), room: (l.room || '').trim() }));
     if (replace) {
       const teachers = [...new Set(rows.map((r) => r.staffId))];
-      const snap = await getDocs(col(s.sid, 'timetable'));
-      snap.docs.filter((d) => teachers.includes(d.data().staffId)).forEach((d) => ops.push({ type: 'delete', coll: 'timetable', id: d.id }));
+      const current = await fetchCollection(s.sid, 'timetable');
+      current.filter((d) => teachers.includes(d.staffId)).forEach((d) => ops.push({ type: 'delete', coll: 'timetable', id: d.id }));
     }
     rows.forEach((r) => ops.push({ type: 'set', coll: 'timetable', data: { ...r, imported: true } }));
     await s.write(ops, { action: 'timetable.import', summary: `Imported ${rows.length} lessons from ${imp.fileName}` });

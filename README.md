@@ -83,7 +83,12 @@ Admins click **Import document** on the Duty roster or Timetable page:
 
 **Check before launch:** Background Functions must be available on your Netlify plan. If they aren't, the upload returns "Could not start reading the document".
 
-## 5. Importing the existing Term 4 roster
+## 5. Live demo and your owner dashboard
+
+- **Live demo:** `/demo` (or `/demo?as=teacher`) opens the real app with a sample school, no account needed. It's linked from the homepage and nav. Demo data lives only in the visitor's browser tab; nothing reaches Firebase. Features that need a real account (invites, payments, imports, emails) show a friendly "start a free trial" message.
+- **Owner dashboard (MRR & users):** set your email in both `VITE_PLATFORM_ADMIN_EMAILS` and `PLATFORM_ADMIN_EMAILS`, sign up with that email and verify it. A **Platform owner → MRR & users** item then appears in your menu. It shows MRR, annual run rate, registered users, paying workspaces, trials, trial conversion, revenue per month (from PayFast payments) and new workspaces per month. The server re-checks your email on every request.
+
+## 6. Importing the existing Term 4 roster
 
 Once you've signed up and created your workspace, copy the school ID from the Firestore console (`schools/{id}`) and run:
 
@@ -93,7 +98,7 @@ node --env-file=.env scripts/import-legacy.mjs ~/Downloads/duty-roster-term-4-20
 ```
 It creates the six duty points, the staff (matched by name; add their emails afterwards to invite them), all 228 duty assignments and the 75 term-date events. Re-running it is safe.
 
-## 6. Launch checklist
+## 7. Launch checklist
 
 - [ ] Fill in `src/config/site.js` (support email, company name). Add real testimonials when you have them; the section stays hidden until then.
 - [ ] Have a lawyer review `src/marketing/Legal.jsx` (terms, POPIA privacy policy). Register an Information Officer with the Information Regulator.
@@ -105,7 +110,7 @@ It creates the six duty points, the staff (matched by name; add their emails aft
 - [ ] Custom domain + HTTPS on Netlify; update `APP_URL`.
 - [ ] Run through: sign up → onboarding → add staff → auto-schedule → invite a teacher (second browser) → accept → swap request → approve → absence → substitute → subscribe with a test card → cancel via "Update card or cancel".
 
-## 7. Maintenance
+## 8. Maintenance
 
 - **Logs:** Netlify → Functions → each function's log (ITN failures return 500 so PayFast retries; rejected ITNs are logged with the reason).
 - **Billing issues:** each school's `billing` map in Firestore shows status, plan, `accessUntil`, the PayFast subscription `token` and last payment reference. Billing changes are written to the school's audit log.

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { demo } from './demo/store.js';
 import { useAuth } from './context/AuthContext.jsx';
 import { Spinner } from './components/ui.jsx';
 import { firebaseConfigured } from './lib/firebase.js';
@@ -18,6 +19,7 @@ const Reset = lazy(() => import('./auth/Reset.jsx'));
 const AcceptInvite = lazy(() => import('./auth/AcceptInvite.jsx'));
 const AppRoutes = lazy(() => import('./app/AppRoutes.jsx'));
 const PublicRoster = lazy(() => import('./public/PublicRoster.jsx'));
+const DemoApp = lazy(() => import('./demo/DemoApp.jsx').then(async (m) => { await import('./demo/seed.js'); return m; }));
 
 function ScrollTop() {
   const { pathname } = useLocation();
@@ -25,9 +27,22 @@ function ScrollTop() {
   return null;
 }
 
+// /demo?as=teacher starts the live demo with sample data (no account needed).
+function StartDemo() {
+  const nav = useNavigate();
+  const { search } = useLocation();
+  useEffect(() => {
+    const as = new URLSearchParams(search).get('as') === 'teacher' ? 'teacher' : 'owner';
+    demo.start(as);
+    nav('/app', { replace: true });
+  }, [nav, search]);
+  return <Spinner label="Opening the demo school…" />;
+}
+
 function RequireAuth({ children }) {
   const { user, loading } = useAuth();
   const loc = useLocation();
+  if (demo.on) return <DemoApp />;
   if (!firebaseConfigured) return <ConfigMissing />;
   if (loading) return <Spinner />;
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(loc.pathname + loc.search)}`} replace />;
@@ -62,6 +77,7 @@ export default function App() {
           <Route path="/reset" element={firebaseConfigured ? <Reset /> : <ConfigMissing />} />
           <Route path="/invite/:token" element={firebaseConfigured ? <AcceptInvite /> : <ConfigMissing />} />
           <Route path="/r/:token" element={<PublicRoster />} />
+          <Route path="/demo" element={<StartDemo />} />
           <Route path="/app/*" element={<RequireAuth><AppRoutes /></RequireAuth>} />
           <Route element={<MarketingLayout />}>
             <Route path="*" element={<NotFound />} />

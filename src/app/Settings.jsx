@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase.js';
+import { docUpdate } from '../lib/data.js';
 import { useSchool } from '../context/SchoolContext.jsx';
 import { api } from '../lib/api.js';
 import { PHASES } from '../lib/events.js';
@@ -28,7 +27,7 @@ export default function Settings() {
 }
 
 async function updateSchool(s, patch, summary) {
-  await updateDoc(doc(db, 'schools', s.sid), patch);
+  await docUpdate(['schools', s.sid], patch);
   await s.write([], { action: 'settings.update', summary });
 }
 

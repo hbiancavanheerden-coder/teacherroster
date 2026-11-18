@@ -1,8 +1,6 @@
 import { createContext, useContext, useMemo } from 'react';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../lib/firebase.js';
 import { useAuth } from './AuthContext.jsx';
-import { useDoc, useCollection, commit } from '../lib/data.js';
+import { useDoc, useCollection, commit, docUpdate, now } from '../lib/data.js';
 import { effectivePlan, hasAccess } from '../config/plans.js';
 import { todayISO } from '../lib/dates.js';
 
@@ -48,7 +46,7 @@ export function SchoolProvider({ children }) {
       actor,
       // Atomic write + audit entry
       write: (ops, audit) => commit(sid, actor, ops, audit),
-      switchSchool: (id) => updateDoc(doc(db, 'users', user.uid), { activeSchoolId: id, updatedAt: serverTimestamp() }),
+      switchSchool: (id) => docUpdate(['users', user.uid], { activeSchoolId: id, updatedAt: now() }),
     };
   }, [profile, school, member, staff, categories, sid, user]);
 

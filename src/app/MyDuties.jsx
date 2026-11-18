@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { where } from 'firebase/firestore';
 import { useSchool } from '../context/SchoolContext.jsx';
-import { useCollection } from '../lib/data.js';
+import { useCollection, where } from '../lib/data.js';
 import { fmtMed } from '../lib/dates.js';
 import { buildICS } from '../lib/ics.js';
 import { download } from '../lib/csv.js';

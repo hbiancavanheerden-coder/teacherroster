@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { orderBy, limit } from 'firebase/firestore';
 import { useSchool } from '../context/SchoolContext.jsx';
-import { useCollection } from '../lib/data.js';
+import { useCollection, orderBy, limit } from '../lib/data.js';
 import { useDutiesRange, useOccurrences, useAbsences, useTerms } from './hooks.js';
 import { addDays, eachDay, isoWeekday, fmtMed, dow, toDate } from '../lib/dates.js';
 import { EVENT_TYPES } from '../lib/events.js';
@@ -10,6 +9,14 @@ import { dutyConflicts } from '../lib/conflicts.js';
 import { isAbsent } from '../lib/scheduler.js';
 import RegisterCard from '../components/RegisterCard.jsx';
 import { Icon } from '../components/ui.jsx';
+
+// "Mrs A. Botha" -> "Mrs Botha"; "Nancy Mokoena" -> "Nancy"
+function greetName(name = '') {
+  const parts = name.trim().split(/\s+/);
+  if (!parts[0]) return 'there';
+  if (/^(mr|mrs|ms|miss|dr|mnr|mev|mej|prof)\.?$/i.test(parts[0])) return `${parts[0]} ${parts[parts.length - 1]}`;
+  return parts[0];
+}
 
 export default function Dashboard() {
   const s = useSchool();
@@ -31,7 +38,7 @@ export default function Dashboard() {
       const ds = duties.data.filter((d) => d.date === sel && d.categoryId === c.id);
       if (!ds.length && !(c.days || [1, 2, 3, 4, 5]).includes(isoWeekday(sel))) return null;
       return {
-        key: c.id, label: c.name, time: c.startTime ? `${c.startTime}–${c.endTime}` : '',
+        key: c.id, label: c.name, color: c.color, time: c.startTime ? `${c.startTime}–${c.endTime}` : '',
         name: ds.map((d) => s.staffById[d.staffId]?.name || '—').join(', '),
         match: ds.some((d) => d.staffId === s.myStaffId),
       };
@@ -63,7 +70,7 @@ export default function Dashboard() {
       <div className="page-head">
         <div>
           <div className="eyebrow">{s.school.name}</div>
-          <h2>Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, {(s.member.name || '').split(' ')[0] || 'there'}</h2>
+          <h2>Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, {greetName(s.member.name)}</h2>
           <div className="muted small">{currentTerm ? `${currentTerm.name} · ends ${fmtMed(currentTerm.end)}` : nextTerm ? `Next: ${nextTerm.name} starts ${fmtMed(nextTerm.start)}` : ''}</div>
         </div>
         {s.isAdmin && <Link to="/app/roster" className="btn"><Icon name="wand" />Plan duties</Link>}
