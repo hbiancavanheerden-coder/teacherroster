@@ -8,6 +8,7 @@ import { EVENT_TYPES } from '../lib/events.js';
 import { dutyConflicts } from '../lib/conflicts.js';
 import { isAbsent } from '../lib/scheduler.js';
 import RegisterCard from '../components/RegisterCard.jsx';
+import PushCard from '../components/PushCard.jsx';
 import { Icon } from '../components/ui.jsx';
 
 // "Mrs A. Botha" -> "Mrs Botha"; "Nancy Mokoena" -> "Nancy"
@@ -103,6 +104,7 @@ export default function Dashboard() {
         </div>
 
         <div className="stack" style={{ minWidth: 0 }}>
+          <PushCard compact hideWhenOn target={{ schoolId: s.sid }} />
           <div className="card">
             <div className="card-head"><h3>My next duties</h3><Link to="/app/my-duties" className="small">All</Link></div>
             {mine.length === 0 ? <p className="muted small" style={{ margin: 0 }}>You have no upcoming duties.</p> : mine.slice(0, 4).map((d) => (

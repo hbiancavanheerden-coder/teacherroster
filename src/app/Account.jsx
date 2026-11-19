@@ -6,6 +6,7 @@ import { useSchool } from '../context/SchoolContext.jsx';
 import { useDoc, docSet, now } from '../lib/data.js';
 import { api } from '../lib/api.js';
 import { Field, useAction, useConfirm } from '../components/ui.jsx';
+import PushCard from '../components/PushCard.jsx';
 
 const PREFS = [
   ['duties', 'When my duties are assigned or changed'],
@@ -74,6 +75,8 @@ export default function Account({ bare }) {
           <button className="btn mt" disabled={busy || !pw.current || !pw.next} onClick={changePw}>Change password</button>
         </div>
       )}
+
+      {school?.sid && <PushCard target={{ schoolId: school.sid }} title="Notifications on this device" />}
 
       <div className="card">
         <h3>Email notifications</h3>

@@ -23,7 +23,8 @@ export default handler(['GET'], async (req) => {
   return json({
     school: { name: school.data().name, timezone: school.data().timezone },
     categories: cats.docs.map((d) => ({ id: d.id, name: d.data().name, order: d.data().order ?? 0, active: d.data().active !== false, startTime: d.data().startTime || '', endTime: d.data().endTime || '' })),
-    duties: duties.docs.map((d) => ({ date: d.data().date, categoryId: d.data().categoryId, name: names[d.data().staffId] || '' })),
+    duties: duties.docs.map((d) => ({ date: d.data().date, categoryId: d.data().categoryId, staffId: d.data().staffId, name: names[d.data().staffId] || '' })),
+    staff: staff.docs.filter((d) => d.data().active !== false).map((d) => ({ id: d.id, name: d.data().name })).sort((a, b) => a.name.localeCompare(b.name)),
     events: events.docs.map((d) => d.data()).filter((e) => !e.private && (e.end || e.start) >= from)
       .map((e) => ({ title: e.title, type: e.type, start: e.start, end: e.end || null, phase: e.phase || 'all', startTime: e.startTime || '', endTime: e.endTime || '', recurrence: e.recurrence || null })),
   }, 200, { 'cache-control': 'public, max-age=60' });

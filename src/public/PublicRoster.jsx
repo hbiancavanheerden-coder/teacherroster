@@ -7,6 +7,12 @@ import { expandEvents, EVENT_TYPES } from '../lib/events.js';
 import RegisterCard from '../components/RegisterCard.jsx';
 import { Modal, Spinner } from '../components/ui.jsx';
 import { SITE } from '../config/site.js';
+import PushCard from '../components/PushCard.jsx';
+import { setStartUrl } from '../lib/push.js';
+
+const meKey = (token) => `sb-me-${token}`;
+const readMe = (token) => { try { return localStorage.getItem(meKey(token)) || ''; } catch { return ''; } };
+const writeMe = (token, id) => { try { id ? localStorage.setItem(meKey(token), id) : localStorage.removeItem(meKey(token)); } catch { /* private mode */ } };
 
 export default function PublicRoster() {
   const { token } = useParams();
@@ -16,6 +22,7 @@ export default function PublicRoster() {
   const [q, setQ] = useState('');
   const [teacher, setTeacher] = useState(null);
   const [showTerm, setShowTerm] = useState(false);
+  const [me, setMe] = useState(() => readMe(token));
   const stripRef = useRef(null);
 
   useEffect(() => {
@@ -25,6 +32,8 @@ export default function PublicRoster() {
       .catch((e) => setError(e.message));
   }, [token]);
   useEffect(() => { if (data?.school?.name) document.title = `${data.school.name} – Duty roster`; }, [data]);
+  // "Add to Home Screen" on this page should reopen this roster link.
+  useEffect(() => { setStartUrl(`/r/${token}`); }, [token]);
 
   const today = todayISO(data?.school?.timezone || 'Africa/Johannesburg');
   const cats = useMemo(() => (data?.categories || []).filter((c) => c.active).sort((a, b) => a.order - b.order), [data]);
@@ -41,8 +50,9 @@ export default function PublicRoster() {
 
   const query = q.trim().toLowerCase();
   const rows = cats.map((c) => {
-    const names = data.duties.filter((d) => d.date === selected && d.categoryId === c.id).map((d) => d.name);
-    return { key: c.id, label: c.name, time: c.startTime ? `${c.startTime}–${c.endTime}` : '', name: names.join(', '), match: query && names.some((n) => n.toLowerCase().includes(query)) };
+    const list = data.duties.filter((d) => d.date === selected && d.categoryId === c.id);
+    const names = list.map((d) => d.name);
+    return { key: c.id, label: c.name, time: c.startTime ? `${c.startTime}–${c.endTime}` : '', name: names.join(', '), match: (query && names.some((n) => n.toLowerCase().includes(query))) || list.some((d) => d.staffId === me) };
   }).filter((r) => r.name);
 
   let next = null;
@@ -53,6 +63,9 @@ export default function PublicRoster() {
   }
 
   const teacherDuties = teacher ? data.duties.filter((d) => d.name === teacher).sort((a, b) => a.date.localeCompare(b.date)) : [];
+  const meStaff = (data.staff || []).find((x) => x.id === me);
+  const myDuties = meStaff ? data.duties.filter((d) => d.staffId === me && d.date >= today).sort((a, b) => a.date.localeCompare(b.date)) : [];
+  const catName = (id) => cats.find((c) => c.id === id);
   const termItems = expandEvents(data.events, today.slice(0, 4) + '-01-01', (Number(today.slice(0, 4)) + 1) + '-12-31');
 
   return (
@@ -61,6 +74,36 @@ export default function PublicRoster() {
         <div className="eyebrow center" style={{ marginBottom: 6 }}>{data.school.name}</div>
         <h1 className="center" style={{ fontSize: 28, margin: '0 0 18px' }}>Who’s on duty</h1>
         {data.events.length > 0 && <div className="center" style={{ marginBottom: 18 }}><button className="chip" style={{ borderColor: 'var(--brass)', color: 'var(--brass-ink)', background: 'var(--brass-tint)' }} onClick={() => setShowTerm(true)}>📅 Term dates</button></div>}
+
+        {(data.staff || []).length > 0 && (meStaff ? (
+          <div className="stack" style={{ marginBottom: 18 }}>
+            <div className="card me-card">
+              <div className="row between" style={{ marginBottom: 8 }}>
+                <b>Hi {meStaff.name}</b>
+                <button className="btn ghost sm" onClick={() => { writeMe(token, ''); setMe(''); }}>Not you?</button>
+              </div>
+              {myDuties.length === 0 ? <p className="small muted" style={{ margin: 0 }}>You have no upcoming duties.</p> : myDuties.slice(0, 4).map((d, i) => {
+                const c = catName(d.categoryId) || {};
+                return (
+                  <div key={d.date + d.categoryId} className="row between" style={{ padding: '7px 0', borderTop: i ? '1px solid var(--line-2)' : 0, flexWrap: 'nowrap' }}>
+                    <span className="small" style={{ fontWeight: d.date === today ? 700 : 500, color: d.date === today ? '#B5470C' : 'var(--ink-2)' }}>{d.date === today ? '☀ Today' : `${dow(d.date)}, ${fmt(d.date)}`}</span>
+                    <span className="small" style={{ textAlign: 'right' }}><b>{c.name || 'Duty'}</b>{c.startTime && <span className="muted"> · {c.startTime}</span>}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <PushCard compact target={{ token, staffId: me }} />
+          </div>
+        ) : (
+          <div className="card" style={{ marginBottom: 18 }}>
+            <label htmlFor="me" className="label">Who are you? <span className="hint">(we’ll remember this on this phone)</span></label>
+            <select id="me" style={{ marginTop: 8 }} value="" onChange={(e) => { writeMe(token, e.target.value); setMe(e.target.value); }}>
+              <option value="">Choose your name…</option>
+              {data.staff.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+            </select>
+            <p className="tiny muted" style={{ margin: '8px 0 0' }}>See your own duties first and get a free reminder every school morning.</p>
+          </div>
+        ))}
 
         {dates.length === 0 ? <div className="card center muted">No duties have been published yet.</div> : (
           <>

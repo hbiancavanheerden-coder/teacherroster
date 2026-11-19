@@ -549,3 +549,9 @@ details.faq p { margin: 12px 0 0; color: var(--ink-2); animation: rise .35s var(
 }
 .print-only { display: none; }
 .with-nav { padding-top: 76px; }
+
+/* Push / install card */
+.push-card { background: linear-gradient(135deg, #FFFFFF, #F3F6FF); border-color: #DCE3FF; }
+.ic-badge { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, var(--accent), var(--violet)); flex: 0 0 auto; box-shadow: 0 8px 18px -8px rgba(41,82,255,.7); }
+.install-steps { margin: 0 0 12px; padding-left: 18px; display: grid; gap: 4px; color: var(--ink-2); }
+.me-card { border: 1px solid #FFD5BC; background: linear-gradient(135deg, #FFF7F1, #FFFFFF); }

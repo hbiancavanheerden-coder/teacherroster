@@ -2,7 +2,7 @@
 //   type 'roster' -> public read-only roster page (/r/:token). Admin only.
 //   type 'ics'    -> calendar subscription feed. Any member for their own duties; admins for the school calendar.
 // POST {schoolId, action:'list'|'create'|'revoke', type, staffId?, token?}
-import { handler, body, requireUser, requireMember, requireActive, db, json, HttpError, FieldValue, token as newToken, audit } from './_lib/core.js';
+import { handler, body, requireUser, requireMember, requireActive, requireFeature, db, json, HttpError, FieldValue, token as newToken, audit } from './_lib/core.js';
 
 export default handler(['POST'], async (req) => {
   const user = await requireUser(req);
@@ -25,6 +25,7 @@ export default handler(['POST'], async (req) => {
     let doc;
     if (p.type === 'roster') {
       if (!isAdmin) throw new HttpError(403, 'Only administrators can share the roster.');
+      requireFeature(school, 'publicRoster');
       doc = { type: 'roster' };
     } else if (p.type === 'ics') {
       if (p.scope === 'school') {

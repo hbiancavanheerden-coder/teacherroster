@@ -1,6 +1,7 @@
 // Delivers a notification to staff: in-app (Firestore) + email (if plan allows and user opted in).
 import { db, FieldValue, effectivePlan, appUrl, esc } from './core.js';
 import { sendEmail, layout, emailConfigured } from './email.js';
+import { pushToStaff } from './push.js';
 
 export const PREF_DEFAULTS = { duties: true, swaps: true, announcements: true, digest: true, events: true };
 
@@ -15,11 +16,20 @@ export async function deliver(school, recipients, pref) {
   const canEmail = plan.features.emailNotifications && emailConfigured();
   let inApp = 0, emailed = 0;
 
+  // Free push notifications to every subscribed device (accounts and shared-link subscribers).
+  let pushed = 0;
+  try {
+    pushed = await pushToStaff(school.id, recipients.map((r) => ({
+      staffId: r.staffId, title: r.title, url: r.link || '/app', tag: pref,
+      body: (r.pushBody || [r.body, ...(r.lines || [])].filter(Boolean).join(' · ')).slice(0, 220),
+    })));
+  } catch (e) { console.error('push delivery failed', e.message); }
+
   for (const r of recipients) {
     const staffSnap = await schoolRef.collection('staff').doc(r.staffId).get();
     if (!staffSnap.exists) continue;
     const staff = staffSnap.data();
-    if (!staff.uid) continue; // only staff with accounts receive notifications
+    if (!staff.uid) continue; // in-app notifications and email need an account
     await schoolRef.collection('notifications').add({
       toUid: staff.uid, title: r.title, body: r.body, link: r.link || '/app', read: false, kind: pref,
       createdAt: FieldValue.serverTimestamp(),
@@ -47,7 +57,7 @@ export async function deliver(school, recipients, pref) {
       console.error('deliver email failed', e.message);
     }
   }
-  return { inApp, emailed };
+  return { inApp, emailed, pushed };
 }
 
 export async function adminStaffIds(schoolRef) {
