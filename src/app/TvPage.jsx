@@ -1,4 +1,5 @@
 // In-app staffroom TV (School plan): open on the staffroom PC/TV while signed in. Updates live.
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useSchool } from '../context/SchoolContext.jsx';
@@ -19,6 +20,9 @@ function TvInner() {
   const s = useSchool();
   const nav = useNavigate();
   const today = useToday(s.today);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
   // Rendered on <body> so it fills the whole screen (the app's page transition would otherwise contain it).
   return createPortal(<TvBoard schoolName={s.school.name} today={today} onExit={() => nav('/app')} />, document.body);
 }
