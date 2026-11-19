@@ -3,7 +3,7 @@
 //
 // Subscriptions live in /pushSubscriptions/{sha256(endpoint)} (server-only):
 //   { schoolId, staffId, uid|null, via: 'account'|'link', endpoint, keys{p256dh, auth}, createdAt, lastOkAt }
-import webpush from 'web-push';
+import * as webpush from 'web-push';
 import crypto from 'node:crypto';
 import { db, FieldValue } from './core.js';
 
