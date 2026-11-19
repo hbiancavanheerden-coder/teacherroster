@@ -38,7 +38,7 @@ export default function PushCard({ target, compact, hideWhenOn, title = 'Morning
             <ol className="small install-steps">
               <li>Tap the <b>Share</b> button <span aria-hidden="true">(□↑)</span> at the bottom of Safari.</li>
               <li>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</li>
-              <li>Open Staffboard from your home screen and tap <b>Turn on notifications</b> here.</li>
+              <li>Open StaffBoard from your home screen and tap <b>Turn on notifications</b> here.</li>
             </ol>
           )}
           {unsupported && <p className="small" style={{ margin: 0 }}>This browser can’t show notifications. Try Chrome on Android, or Safari on iPhone (iOS 16.4 or later).</p>}

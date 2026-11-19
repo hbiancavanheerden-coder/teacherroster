@@ -21,7 +21,7 @@ describe('Teacher vs School sharing', () => {
 describe('principal proposal', () => {
   it('states the School price and includes the teacher’s note', () => {
     const p = proposalText({ schoolName: 'Laerskool Sonskyn', teacher: 'Mrs Botha', staffCount: 40, dutyCount: 600, note: 'Please!' });
-    expect(p.subject).toBe('Mrs Botha recommends Staffboard for Laerskool Sonskyn');
+    expect(p.subject).toBe('Mrs Botha recommends StaffBoard for Laerskool Sonskyn');
     expect(p.price).toContain(`R${PLANS.school.monthly}/month`);
     expect(p.points.join(' ')).toMatch(/about \d+ hours a term/);
     expect(p.note).toBe('Please!');

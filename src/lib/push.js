@@ -50,7 +50,7 @@ export async function currentSubscription() {
 
 /** target: { schoolId } for signed-in users, or { token, staffId } for the shared roster link. */
 export async function enablePush(target) {
-  if (!pushSupported()) throw new Error('This browser can’t show notifications. On iPhone, add Staffboard to your home screen first.');
+  if (!pushSupported()) throw new Error('This browser can’t show notifications. On iPhone, add StaffBoard to your home screen first.');
   if (!VAPID) throw new Error('Notifications are not configured on this site yet.');
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') throw new Error('Notifications are blocked. Allow them for this site in your phone or browser settings, then try again.');

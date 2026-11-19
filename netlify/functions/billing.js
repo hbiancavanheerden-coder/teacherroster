@@ -26,7 +26,7 @@ export default handler(['POST'], async (req) => {
     const fields = checkoutFields({
       paymentId: ref.id,
       amount,
-      itemName: `Staffboard ${plan.name} (${p.interval}) – ${school.name}`.slice(0, 100),
+      itemName: `StaffBoard ${plan.name} (${p.interval}) – ${school.name}`.slice(0, 100),
       email: user.email,
       firstName: (member.name || '').split(' ')[0].slice(0, 100),
       frequency: p.interval === 'annual' ? 6 : 3,

@@ -35,7 +35,7 @@ export default function Onboarding({ allowNew }) {
       </div>
       <Field label="School name"><input required minLength={2} value={f.name} onChange={set('name')} placeholder="e.g. Laerskool Hoëveld" /></Field>
       <Field label="Your name" hint="as staff know you, e.g. Mrs Botha"><input required value={f.ownerName} onChange={set('ownerName')} /></Field>
-      <label className="check small"><input type="checkbox" checked={f.useTemplate} onChange={set('useTemplate')} /> Start with common duty points (front gates, back gates, taxi, devotion). You can edit them later.</label>
+      <label className="check small"><input type="checkbox" checked={f.useTemplate} onChange={set('useTemplate')} /> Start with common duty points (gates, taxi, devotion) plus this year’s school terms and public holidays. You can edit everything later.</label>
       {error && <div className="error-box">{error}</div>}
       <button className="btn lg" disabled={busy}>{busy ? 'Setting up…' : 'Create workspace'}</button>
     </form>

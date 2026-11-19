@@ -24,7 +24,7 @@ export default handler(['POST'], async (req) => {
   await sendEmail({
     to: process.env.CONTACT_TO,
     replyTo: email,
-    subject: `[Staffboard] ${topic} – ${name}${school ? ' (' + school + ')' : ''}`,
+    subject: `[StaffBoard] ${topic} – ${name}${school ? ' (' + school + ')' : ''}`,
     html: `<p><b>Name:</b> ${esc(name)}<br><b>Email:</b> ${esc(email)}<br><b>School:</b> ${esc(school)}<br><b>Topic:</b> ${esc(topic)}</p><p style="white-space:pre-wrap">${esc(message)}</p>`,
     text: `Name: ${name}\nEmail: ${email}\nSchool: ${school}\nTopic: ${topic}\n\n${message}`,
   });

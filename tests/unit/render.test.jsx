@@ -27,6 +27,11 @@ import Account from '../../src/app/Account.jsx';
 import AppLayout from '../../src/app/AppLayout.jsx';
 import Onboarding from '../../src/app/Onboarding.jsx';
 import Home from '../../src/marketing/Home.jsx';
+import Relief from '../../src/app/Relief.jsx';
+import Invigilation from '../../src/app/Invigilation.jsx';
+import Inspections from '../../src/app/Inspections.jsx';
+import Briefing from '../../src/app/Briefing.jsx';
+import TvPage from '../../src/app/TvPage.jsx';
 import Pricing from '../../src/marketing/Pricing.jsx';
 
 const staff = [{ id: 'st1', name: 'Bianca', active: true, uid: 'u1' }, { id: 'st2', name: 'Nancy', active: true }];
@@ -49,7 +54,7 @@ function ctx(role) {
   };
 }
 
-const PAGES = { Dashboard, MyDuties, Roster, Calendar, Terms, Staff, Timetable, Absences, Swaps, Announcements, Reports, Notifications, Audit, Settings, Billing, Account, Onboarding };
+const PAGES = { Relief, Invigilation, Inspections, Briefing, TvPage, Dashboard, MyDuties, Roster, Calendar, Terms, Staff, Timetable, Absences, Swaps, Announcements, Reports, Notifications, Audit, Settings, Billing, Account, Onboarding };
 
 function render(el, role) {
   return renderToString(
@@ -114,5 +119,17 @@ describe('teacher-plan upsell', () => {
     const html = render(<UpgradeModal onClose={() => {}} />, 'owner').replace(/<!-- -->/g, '');
     expect(html).toContain('Ask your principal');
     expect(html).toContain('R599');
+  });
+});
+
+describe('School-only pages on the Teacher plan', () => {
+  it('show the upgrade explanation instead of the tool', () => {
+    for (const Page of [Relief, Invigilation, Inspections, Briefing, TvPage]) {
+      const c = ctx('owner');
+      const solo = { ...c, plan: effectivePlan({ status: 'active', plan: 'solo' }) };
+      const html = renderToString(<MemoryRouter><AuthCtx.Provider value={{ user, loading: false }}><SchoolCtx.Provider value={solo}><ToastProvider><Page /></ToastProvider></SchoolCtx.Provider></AuthCtx.Provider></MemoryRouter>);
+      expect(html).toContain('School plan');
+      expect(html).toContain('Get this for my school');
+    }
   });
 });

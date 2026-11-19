@@ -19,7 +19,7 @@ function fold(line) {
 export function buildICS(name, items, timeZone = 'Africa/Johannesburg') {
   const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
   const lines = [
-    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Staffboard//Duty Register//EN', 'CALSCALE:GREGORIAN',
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//StaffBoard//Duty Register//EN', 'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH', `X-WR-CALNAME:${esc(name)}`, `X-WR-TIMEZONE:${timeZone}`,
   ];
   for (const it of items) {

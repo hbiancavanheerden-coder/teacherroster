@@ -15,9 +15,12 @@ export function isPlatformOwner(user) {
   return Boolean(user?.email && list.includes(user.email.toLowerCase()));
 }
 
+// [path, icon, label, feature, exactMatch]. Items whose feature isn't in the plan show a "School" tag
+// for admins (the page explains the upgrade) and are hidden for everyone else.
 const NAV = [
   { group: 'Daily', items: [
     ['/app', 'home', 'Today', null, true],
+    ['/app/briefing', 'log', 'Daily briefing', 'briefing'],
     ['/app/my-duties', 'user', 'My duties'],
     ['/app/roster', 'roster', 'Duty roster'],
     ['/app/calendar', 'calendar', 'Calendar'],
@@ -30,7 +33,11 @@ const NAV = [
   ] },
   { group: 'Admin', admin: true, items: [
     ['/app/absences', 'absent', 'Away & cover'],
-    ['/app/terms', 'clock', 'Term dates'],
+    ['/app/relief', 'swap', 'Relief roster', 'relief'],
+    ['/app/invigilation', 'clock', 'Invigilation', 'invigilation'],
+    ['/app/inspections', 'check', 'Inspections', 'inspections'],
+    ['/app/tv', 'grid', 'Staffroom TV', 'tvDisplay'],
+    ['/app/terms', 'calendar', 'Term dates'],
     ['/app/reports', 'chart', 'Reports'],
     ['/app/audit', 'log', 'Audit log', 'auditLog'],
     ['/app/settings', 'settings', 'Settings'],
@@ -43,7 +50,7 @@ const TITLES = {
   '/app/timetable': 'Timetable', '/app/swaps': 'Duty swaps', '/app/absences': 'Away & cover',
   '/app/announcements': 'Announcements', '/app/staff': 'Staff', '/app/terms': 'Term dates', '/app/reports': 'Reports',
   '/app/audit': 'Audit log', '/app/settings': 'Settings', '/app/billing': 'Billing', '/app/account': 'My account',
-  '/app/notifications': 'Notifications', '/app/onboarding': 'New workspace', '/app/platform': 'Platform overview',
+  '/app/notifications': 'Notifications', '/app/briefing': 'Daily briefing', '/app/relief': 'Relief roster', '/app/invigilation': 'Exam invigilation', '/app/inspections': 'Inspections & moderation', '/app/tv': 'Staffroom TV', '/app/onboarding': 'New workspace', '/app/platform': 'Platform overview',
 };
 
 function daysLeft(ts) {
@@ -88,7 +95,7 @@ export default function AppLayout({ children }) {
   }
 
   const schools = Object.entries(s.profile?.schools || {});
-  const title = TITLES[loc.pathname] || 'Staffboard';
+  const title = TITLES[loc.pathname] || 'StaffBoard';
 
   return (
     <div className="app">
@@ -102,9 +109,10 @@ export default function AppLayout({ children }) {
         {NAV.filter((g) => !g.admin || s.isAdmin).map((g) => (
           <div className="nav-group" key={g.group}>
             <div className="nav-label">{g.group}</div>
-            {g.items.filter(([, , , feat]) => !feat || s.plan.features[feat]).map(([to, icon, label, , end]) => (
+            {g.items.filter(([, , , feat]) => !feat || s.plan.features[feat] || s.isAdmin).map(([to, icon, label, feat, end]) => (
               <NavLink key={to} to={to} end={end} className="nav-link">
                 <Icon name={icon} />{label}
+                {feat && !s.plan.features[feat] && <span className="school-tag">School</span>}
                 {to === '/app/swaps' && swapCount > 0 && <span className="count">{swapCount}</span>}
               </NavLink>
             ))}

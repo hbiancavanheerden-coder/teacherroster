@@ -14,6 +14,13 @@ export default function MyDuties() {
   const person = s.staffById[who];
   const duties = useCollection(s.sid, 'duties', [where('staffId', '==', who || '-')], [who]);
   const swaps = useCollection(s.sid, 'swapRequests', [where('fromStaffId', '==', who || '-')], [who]);
+  const myRelief = useCollection(s.plan.features.relief ? s.sid : null, 'relief', [where('coverStaffId', '==', who || '-')], [who]);
+  const myExams = useCollection(s.plan.features.invigilation ? s.sid : null, 'exams', [where('invigilatorIds', 'array-contains', who || '-')], [who]);
+  const periods = s.school.settings?.periods || [];
+  const extra = [
+    ...myRelief.data.filter((r) => r.date >= s.today).map((r) => ({ key: 'r' + r.id, date: r.date, label: `Relief: ${r.className} ${r.subject}`, detail: `${periods[r.periodIndex]?.name || ''} ${periods[r.periodIndex]?.start || ''}${r.room ? ' · ' + r.room : ''}` })),
+    ...myExams.data.filter((x) => x.date >= s.today).map((x) => ({ key: 'x' + x.id, date: x.date, label: `Invigilate: ${x.subject} ${x.grade || ''}`, detail: `${x.startTime}–${x.endTime}${x.venue ? ' · ' + x.venue : ''}` })),
+  ].sort((a, b) => a.date.localeCompare(b.date));
   const list = [...duties.data].sort((a, b) => a.date.localeCompare(b.date));
   const upcoming = list.filter((d) => d.date >= s.today);
   const past = list.filter((d) => d.date < s.today);
@@ -78,6 +85,17 @@ export default function MyDuties() {
             )}
           </div>
           <div className="stack">
+            {extra.length > 0 && (
+              <div className="card">
+                <h3>Relief &amp; invigilation</h3>
+                {extra.map((e) => (
+                  <div key={e.key} className="row between" style={{ padding: '8px 0', borderBottom: '1px solid var(--line-2)', flexWrap: 'nowrap' }}>
+                    <span className="mono small">{e.date === s.today ? 'Today' : fmtMed(e.date)}</span>
+                    <span style={{ textAlign: 'right' }}><b className="small">{e.label}</b><div className="tiny muted">{e.detail}</div></span>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="card">
               <h3>Duty mix</h3>
               {Object.keys(byCat).length === 0 ? <p className="muted small">Nothing yet.</p> : Object.entries(byCat).sort((a, b) => b[1] - a[1]).map(([cid, n]) => (

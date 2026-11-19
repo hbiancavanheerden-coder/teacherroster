@@ -57,6 +57,7 @@ export const demo = {
           case '>': return a > b;
           case '<': return a < b;
           case 'in': return c.v.includes(a);
+          case 'array-contains': return Array.isArray(d[c.f]) && d[c.f].includes(c.v);
           default: return true;
         }
       });

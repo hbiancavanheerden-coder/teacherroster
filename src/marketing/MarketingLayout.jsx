@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { SITE } from '../config/site.js';
 
 export function Brand({ to = '/' }) {
-  return <Link to={to} className="brand"><span className="brand-mark" aria-hidden="true" />{SITE.name}</Link>;
+  return <Link to={to} className="brand"><img src="/brand/mark-128.png" className="brand-mark" alt="" width="30" height="30" />{SITE.name}</Link>;
 }
 
 export default function MarketingLayout() {

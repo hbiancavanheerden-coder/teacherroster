@@ -44,14 +44,14 @@ export default handler(['POST'], async (req) => {
     try {
       await sendEmail({
         to: staff.email,
-        subject: `${member.name} invited you to ${school.name} on Staffboard`,
+        subject: `${member.name} invited you to ${school.name} on StaffBoard`,
         html: layout({
           heading: `Join ${school.name}`,
           intro: `${member.name} has added you to the ${school.name} staff duty register. Create your account to see your duties, timetable and school calendar, and to get reminders.`,
           cta: { label: 'Accept invitation', url: appUrl(`/invite/${t}`) },
           footer: 'This invitation expires in 14 days. If you weren\'t expecting it, you can ignore this email.',
         }),
-        text: `${member.name} invited you to ${school.name} on Staffboard. Accept: ${appUrl(`/invite/${t}`)}`,
+        text: `${member.name} invited you to ${school.name} on StaffBoard. Accept: ${appUrl(`/invite/${t}`)}`,
       });
       await s.ref.update({ invitedAt: FieldValue.serverTimestamp() });
       results.push({ staffId, name: staff.name, ok: true });

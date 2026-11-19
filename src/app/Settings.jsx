@@ -171,35 +171,48 @@ function School() {
 }
 
 function Share() {
+  return (
+    <div className="stack" style={{ maxWidth: 760, gap: 18 }}>
+      <LinkSection type="roster" title="Shared roster link" path="/r/" createLabel="Create roster link"
+        text="A read-only page staff open on their phones without an account. Each teacher picks their name once, sees their own duties first and can turn on free morning reminders. It shows names, duties and school events (no emails or phone numbers). Share it only with your staff, e.g. in the staff WhatsApp group." />
+      {useSchool().plan.features.tvDisplay && (
+        <LinkSection type="tv" title="Staffroom TV link" path="/tv/" createLabel="Create TV link"
+          text="Open this link on the staffroom TV or a spare screen. It shows today’s duties, who’s away, relief, exams, events and notices, and updates every minute. No login needed on the TV." />
+      )}
+    </div>
+  );
+}
+
+function LinkSection({ type, title, text, path, createLabel }) {
   const s = useSchool();
   const [links, setLinks] = useState(null);
   const [run, busy] = useAction();
   const [confirm, confirmNode] = useConfirm();
   const toast = useToast();
-  const load = () => api('links', { schoolId: s.sid, action: 'list' }).then((r) => setLinks(r.links.filter((l) => l.type === 'roster'))).catch((e) => { toast(e.message, 'error'); setLinks([]); });
+  const load = () => api('links', { schoolId: s.sid, action: 'list' }).then((r) => setLinks(r.links.filter((l) => l.type === type))).catch((e) => { toast(e.message, 'error'); setLinks([]); });
   useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
-  const create = () => run(async () => { await api('links', { schoolId: s.sid, action: 'create', type: 'roster' }); await load(); }, 'Link created');
+  const create = () => run(async () => { await api('links', { schoolId: s.sid, action: 'create', type }); await load(); }, 'Link created');
   const revoke = async (l) => {
     if (await confirm({ title: 'Revoke link?', message: 'Anyone using this link will lose access immediately.', danger: true, confirmLabel: 'Revoke' })) {
       run(async () => { await api('links', { schoolId: s.sid, action: 'revoke', token: l.token }); await load(); }, 'Link revoked');
     }
   };
   return (
-    <div className="card" style={{ maxWidth: 760 }}>
+    <div className="card">
       {confirmNode}
-      <h3>Public roster link</h3>
-      <p className="small muted">A read-only “noticeboard” page that staff can open on their phones without an account. It shows staff names, duties and school calendar events (not emails or phone numbers). Anyone with the link can view it, so share it only with your staff, for example in the staff WhatsApp group.</p>
+      <h3>{title}</h3>
+      <p className="small muted">{text}</p>
       {links === null ? <p className="muted small">Loading…</p> : links.length === 0 ? (
-        <button className="btn" disabled={busy || !s.canWrite} onClick={create}><Icon name="link" />Create roster link</button>
+        <button className="btn" disabled={busy || !s.canWrite} onClick={create}><Icon name="link" />{createLabel}</button>
       ) : links.map((l) => {
-        const url = `${window.location.origin}/r/${l.token}`;
+        const url = `${window.location.origin}${path}${l.token}`;
         return (
           <div key={l.token} className="stack" style={{ gap: 8 }}>
-            <input readOnly value={url} onFocus={(e) => e.target.select()} aria-label="Roster link" />
+            <input readOnly value={url} onFocus={(e) => e.target.select()} aria-label={title} />
             <div className="row">
               <button className="btn sm" onClick={() => { navigator.clipboard?.writeText(url); toast('Link copied'); }}>Copy link</button>
               <a className="btn secondary sm" href={url} target="_blank" rel="noreferrer">Open</a>
-              <a className="btn secondary sm" href={`https://wa.me/?text=${encodeURIComponent(`Duty roster for ${s.school.name}: ${url}`)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a>
+              {type === 'roster' && <a className="btn secondary sm" href={`https://wa.me/?text=${encodeURIComponent(`Duty roster for ${s.school.name}: ${url}`)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a>}
               <button className="btn ghost sm" disabled={busy} onClick={() => revoke(l)}>Revoke</button>
             </div>
           </div>

@@ -48,6 +48,38 @@ export default handler(['POST'], async (req) => {
       }));
       break;
     }
+    // Relief saved for a date: tell each covering teacher their lessons.
+    case 'relief': {
+      if (!isAdmin) throw new HttpError(403, 'Only administrators can arrange relief.');
+      if (!DATE_RE.test(p.date)) throw new HttpError(400, 'Invalid date');
+      const periods = school.settings?.periods || [];
+      const snap = await schoolRef.collection('relief').where('date', '==', p.date).get();
+      const by = {};
+      snap.docs.forEach((d) => { const r = d.data(); if (r.coverStaffId) (by[r.coverStaffId] ||= []).push(r); });
+      recipients = Object.entries(by).map(([staffId, list]) => {
+        const lines = list.sort((a, b) => a.periodIndex - b.periodIndex).map((r) => `${periods[r.periodIndex]?.name || 'Period ' + (r.periodIndex + 1)}${periods[r.periodIndex]?.start ? ' (' + periods[r.periodIndex].start + ')' : ''}: ${r.className} ${r.subject}${r.room ? ', ' + r.room : ''}`.replace(/\s+/g, ' '));
+        return { staffId, title: `Relief ${fmt(p.date)}: ${lines[0]}${lines.length > 1 ? ` +${lines.length - 1} more` : ''}`, body: `You’re covering ${list.length} lesson${list.length === 1 ? '' : 's'} on ${fmt(p.date)}.`, lines, link: '/app/briefing' };
+      });
+      break;
+    }
+    // Invigilators assigned to exam sessions.
+    case 'invigilation': {
+      if (!isAdmin) throw new HttpError(403, 'Only administrators can assign invigilators.');
+      const ids = Array.isArray(p.examIds) ? p.examIds.slice(0, 100).map(String) : [];
+      const by = {};
+      for (const id of ids) {
+        const x = (await schoolRef.collection('exams').doc(id).get()).data();
+        if (!x) continue;
+        (x.invigilatorIds || []).forEach((sid) => (by[sid] ||= []).push(x));
+      }
+      recipients = Object.entries(by).map(([staffId, list]) => ({
+        staffId, title: 'Invigilation duty', body: `You’re invigilating ${list.length} exam session${list.length === 1 ? '' : 's'}.`,
+        lines: list.sort((a, b) => a.date.localeCompare(b.date)).map((x) => `${fmt(x.date)} ${x.startTime}–${x.endTime}: ${x.subject} ${x.grade || ''}${x.venue ? ' · ' + x.venue : ''}`.trim()),
+        link: '/app/my-duties',
+      }));
+      pref = 'duties';
+      break;
+    }
     case 'swap': {
       pref = 'swaps';
       const snap = await schoolRef.collection('swapRequests').doc(String(p.swapId)).get();

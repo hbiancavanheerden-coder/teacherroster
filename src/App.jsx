@@ -20,6 +20,7 @@ const AcceptInvite = lazy(() => import('./auth/AcceptInvite.jsx'));
 const AppRoutes = lazy(() => import('./app/AppRoutes.jsx'));
 const PublicRoster = lazy(() => import('./public/PublicRoster.jsx'));
 const UpgradePage = lazy(() => import('./public/UpgradePage.jsx'));
+const PublicTv = lazy(() => import('./public/PublicTv.jsx'));
 const DemoApp = lazy(() => import('./demo/DemoApp.jsx').then(async (m) => { await import('./demo/seed.js'); return m; }));
 
 function ScrollTop() {
@@ -80,6 +81,7 @@ export default function App() {
           <Route path="/r/:token" element={<PublicRoster />} />
           <Route path="/demo" element={<StartDemo />} />
           <Route path="/upgrade/:token" element={<UpgradePage />} />
+          <Route path="/tv/:token" element={<PublicTv />} />
           <Route path="/app/*" element={<RequireAuth><AppRoutes /></RequireAuth>} />
           <Route element={<MarketingLayout />}>
             <Route path="*" element={<NotFound />} />

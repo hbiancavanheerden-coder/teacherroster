@@ -3,6 +3,7 @@ import { useSchool } from '../context/SchoolContext.jsx';
 import { useTerms, useEvents } from './hooks.js';
 import { fmtMed, diffDays, eachDay, isoWeekday } from '../lib/dates.js';
 import { PHASES, saPublicHolidays } from '../lib/events.js';
+import { SA_PUBLIC_TERMS, termYears } from '../lib/schoolTerms.js';
 import { Modal, Field, Empty, Icon, useAction, useConfirm } from '../components/ui.jsx';
 
 export default function Terms() {
@@ -13,6 +14,19 @@ export default function Terms() {
   const [run, busy] = useAction();
   const [confirm, confirmNode] = useConfirm();
   const year = Number(s.today.slice(0, 4));
+
+  // One click: the national public school terms + public holidays for a year.
+  const importYear = (y) => run(async () => {
+    const terms0 = SA_PUBLIC_TERMS[y] || [];
+    const haveTerm = new Set(terms.data.map((t) => t.start));
+    const newTerms = terms0.filter(([, start]) => !haveTerm.has(start));
+    const existingHol = new Set(events.data.filter((e) => e.type === 'holiday').map((e) => e.start));
+    const hols = saPublicHolidays(y).filter((h) => !existingHol.has(h.date));
+    await s.write([
+      ...newTerms.map(([name, start, end]) => ({ type: 'set', coll: 'terms', data: { name: `${name} ${y}`, start, end, phase: 'all' } })),
+      ...hols.map((h) => ({ type: 'set', coll: 'events', data: { title: h.title, type: 'holiday', phase: 'all', start: h.date, end: null, allDay: true, remindDaysBefore: -1, createdBy: s.actor.uid } })),
+    ], { action: 'calendar.import', summary: `Loaded ${y} public school terms (${newTerms.length}) and public holidays (${hols.length})` });
+  }, `${y} school terms and public holidays added`);
 
   const importHolidays = (y) => run(async () => {
     const existing = new Set(events.data.filter((e) => e.type === 'holiday').map((e) => e.start));
@@ -32,10 +46,10 @@ export default function Terms() {
     <div className="stack" style={{ gap: 18 }}>
       {confirmNode}
       <div className="page-head">
-        <div><h2>Term dates</h2><p className="muted small" style={{ margin: 0 }}>Terms drive the calendar’s term view and tell the auto-scheduler which days are school days. Phases can have their own terms.</p></div>
+        <div><h2>Term dates</h2><p className="muted small" style={{ margin: 0 }}>Terms drive the calendar’s term view and tell the auto-scheduler which days are school days. Phases can have their own terms. The one-click dates are the national public school calendar (independent schools set their own).</p></div>
         <div className="row">
-          <button className="btn secondary sm" disabled={busy || !s.canWrite} onClick={() => importHolidays(year)}>Add {year} public holidays</button>
-          <button className="btn secondary sm" disabled={busy || !s.canWrite} onClick={() => importHolidays(year + 1)}>Add {year + 1} holidays</button>
+          {termYears().filter((y) => y >= year).map((y) => <button key={y} className="btn accent sm" disabled={busy || !s.canWrite} onClick={() => importYear(y)}>Load {y} school terms + holidays</button>)}
+          {!termYears().includes(year + 1) && <button className="btn secondary sm" disabled={busy || !s.canWrite} onClick={() => importHolidays(year + 1)}>Add {year + 1} public holidays</button>}
           <button className="btn sm" disabled={!s.canWrite} onClick={() => setEdit({ name: `Term ${terms.data.length + 1}`, start: '', end: '', phase: 'all' })}><Icon name="plus" />Add term</button>
         </div>
       </div>

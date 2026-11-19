@@ -24,7 +24,7 @@ export default function Login() {
   };
 
   return (
-    <AuthShell title="Welcome back" subtitle="Sign in to your Staffboard workspace."
+    <AuthShell title="Welcome back" subtitle="Sign in to your StaffBoard workspace."
       footer={<>New here? <Link to={`/register${params.get('next') ? '?next=' + encodeURIComponent(next) : ''}`}>Start a free trial</Link></>}>
       <form className="stack" onSubmit={(e) => { e.preventDefault(); go(() => signInWithEmailAndPassword(auth, email.trim(), password)); }}>
         <Field label="Email"><input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>

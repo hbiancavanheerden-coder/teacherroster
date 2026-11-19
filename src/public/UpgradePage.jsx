@@ -49,7 +49,7 @@ export default function UpgradePage() {
               <>
                 <div className="eyebrow">Proposal for {info.schoolName}</div>
                 <h2 style={{ fontSize: 28, margin: '8px 0 10px' }}>Give every teacher their duties, <em className="serif-i">live.</em></h2>
-                <p className="muted">{info.requestedBy || 'A colleague'} has already set up the duty roster{info.staffCount ? ` for ${info.staffCount} staff` : ''} on Staffboard. Activating the School plan shares it with the whole staff.</p>
+                <p className="muted">{info.requestedBy || 'A colleague'} has already set up the duty roster{info.staffCount ? ` for ${info.staffCount} staff` : ''} on StaffBoard. Activating the School plan shares it with the whole staff.</p>
                 <ul className="ticks" style={{ margin: '18px 0' }}>{info.plan.highlights.map((h) => <li key={h}>{h}</li>)}</ul>
                 <div className="toggle" style={{ marginBottom: 14 }}>
                   <button type="button" className={interval === 'annual' ? 'active' : ''} onClick={() => setInterval('annual')}>Yearly · {formatRand(info.plan.annual)}</button>

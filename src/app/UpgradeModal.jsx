@@ -34,13 +34,13 @@ export default function UpgradeModal({ onClose, reason }) {
   const whatsapp = async () => {
     try {
       const url = await getLink();
-      const text = `Hi! I've been using Staffboard for our duty roster. With the School plan every teacher sees their duties live on their phone and gets a reminder each morning (${formatRand(p.monthly)}/month). You can review and activate it here: ${url}`;
+      const text = `Hi! I've been using StaffBoard for our duty roster. With the School plan every teacher sees their duties live on their phone and gets a reminder each morning (${formatRand(p.monthly)}/month). You can review and activate it here: ${url}`;
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
     } catch (err) { toast(err.message, 'error'); }
   };
 
   return (
-    <Modal wide title="Share Staffboard with your whole staff" onClose={onClose}>
+    <Modal wide title="Share StaffBoard with your whole staff" onClose={onClose}>
       <div className="grid grid-2" style={{ alignItems: 'start', gap: 20 }}>
         <div className="stack">
           {reason && <div className="info-box">{reason}</div>}

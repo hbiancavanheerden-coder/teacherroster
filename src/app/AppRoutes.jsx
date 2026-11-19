@@ -23,6 +23,11 @@ const pages = {
   Billing: lazy(() => import('./Billing.jsx')),
   Account: lazy(() => import('./Account.jsx')),
   Platform: lazy(() => import('./Platform.jsx')),
+  Briefing: lazy(() => import('./Briefing.jsx')),
+  Relief: lazy(() => import('./Relief.jsx')),
+  Invigilation: lazy(() => import('./Invigilation.jsx')),
+  Inspections: lazy(() => import('./Inspections.jsx')),
+  Tv: lazy(() => import('./TvPage.jsx')),
 };
 
 function AdminOnly({ children }) {
@@ -64,6 +69,11 @@ function Inner() {
           <Route path="billing" element={<AdminOnly><P.Billing /></AdminOnly>} />
           <Route path="account" element={<P.Account />} />
           <Route path="platform" element={<P.Platform />} />
+          <Route path="briefing" element={<P.Briefing />} />
+          <Route path="relief" element={<AdminOnly><P.Relief /></AdminOnly>} />
+          <Route path="invigilation" element={<AdminOnly><P.Invigilation /></AdminOnly>} />
+          <Route path="inspections" element={<AdminOnly><P.Inspections /></AdminOnly>} />
+          <Route path="tv" element={<AdminOnly><P.Tv /></AdminOnly>} />
           <Route path="*" element={<Navigate to="/app" replace />} />
         </Routes>
       </Suspense>

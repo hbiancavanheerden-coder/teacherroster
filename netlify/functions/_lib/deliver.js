@@ -47,8 +47,8 @@ export async function deliver(school, recipients, pref) {
           heading: r.title,
           intro: r.body,
           lines: (r.lines || []).map((l) => esc(l)),
-          cta: { label: 'Open Staffboard', url: appUrl(r.link || '/app') },
-          footer: `Sent by ${school.name} via Staffboard.`,
+          cta: { label: 'Open StaffBoard', url: appUrl(r.link || '/app') },
+          footer: `Sent by ${school.name} via StaffBoard.`,
         }),
         text: [r.title, r.body, ...(r.lines || []), appUrl(r.link || '/app')].join('\n'),
       });

@@ -2,6 +2,8 @@
 import { demo, ts } from './store.js';
 import { todayISO, addDays, startOfWeek, isoWeekday } from '../lib/dates.js';
 import { generateRoster } from '../lib/scheduler.js';
+import { lessonsNeedingCover, autoAssignRelief } from '../lib/relief.js';
+import { autoAssignInvigilators } from '../lib/invigilation.js';
 import { PLANS } from '../config/plans.js';
 
 export const DEMO_SID = 'demo-school';
@@ -29,8 +31,8 @@ const STAFF = [
   ['st-16', 'Mr L. Mahlangu', 'EMS', 'senior', 'Teacher', 1],
 ];
 const CATS = [
-  ['c-front', 'Front gate', '#2952FF', '07:00', '07:45', 2],
-  ['c-back', 'Back gate', '#7C5CFF', '07:00', '07:45', 1],
+  ['c-front', 'Front gate', '#0077D6', '07:00', '07:45', 2],
+  ['c-back', 'Back gate', '#00B4D8', '07:00', '07:45', 1],
   ['c-taxi', 'Taxi rank', '#FF7A2F', '13:30', '14:15', 1],
   ['c-dev', 'Morning devotion', '#0F9F74', '07:30', '07:45', 1],
   ['c-break', 'Break: field', '#0EA5B7', '10:15', '10:45', 1],
@@ -90,6 +92,29 @@ export function seed() {
       }
     }
   }
+  // Relief for today (Mrs Khumalo is away): the last lesson is left open to show the "not covered" state.
+  const needs = lessonsNeedingCover({ date: today, absences, timetable: lessons });
+  const relief = autoAssignRelief({ needs, staff, absences, timetable: lessons, reliefs: [], duties, categories: cats, periods: PERIODS, counts: { 'st-teacher': 1 } })
+    .map((r, i, all) => ({ ...r, coverStaffId: i === all.length - 1 && all.length > 2 ? null : r.coverStaffId, note: '' }));
+  // Earlier relief this term, for the fairness counts.
+  ['st-4', 'st-6', 'st-8', 'st-9', 'st-teacher', 'st-12'].forEach((sid, i) => relief.push({ id: 'old' + i, date: addDays(today, -7 - i), lessonId: 'x', periodIndex: 2, absentStaffId: 'st-11', className: '6A', subject: 'Art', room: 'R12', coverStaffId: sid, note: '' }));
+
+  // Exam sessions in the exam window, invigilators assigned fairly.
+  const examStart = addDays(today, 16);
+  const papers = [['Mathematics P1', 'Gr 7', '08:00', '10:00'], ['English Home Language', 'Gr 6', '08:00', '09:30'], ['Natural Sciences', 'Gr 5', '10:30', '12:00'], ['Afrikaans FAL', 'Gr 7', '08:00', '10:00'], ['Social Sciences', 'Gr 6', '10:30', '12:00'], ['Mathematics', 'Gr 4', '08:00', '09:30']];
+  const rawExams = papers.map(([subject, grade, startTime, endTime], i) => {
+    let d = addDays(examStart, Math.floor(i / 2)); while (isoWeekday(d) > 5) d = addDays(d, 1);
+    return { id: 'ex' + i, date: d, startTime, endTime, subject, grade, venue: i % 2 ? 'Hall' : 'Gr 7 classes', needed: 2, invigilatorIds: [] };
+  });
+  const exams = autoAssignInvigilators({ sessions: rawExams, staff: staff.filter((s) => s.id !== 'st-owner'), absences, timetable: lessons, duties, categories: cats, periods: PERIODS }).sessions;
+  if (exams[4]) exams[4].invigilatorIds = exams[4].invigilatorIds.slice(0, 1); // one open slot to show
+
+  const inspections = [
+    { id: 'in1', title: 'Book inspection – Mathematics', type: 'book', date: addDays(today, 2), dueDate: addDays(today, 4), ownerStaffId: 'st-deputy', staffIds: ['st-teacher', 'st-8', 'st-16', 'st-4'], notes: 'Send books to Mr van Wyk’s class during register.', items: { 'st-8': { status: 'done', comment: 'Neat, marking up to date', by: 'Mr J. van Wyk' } } },
+    { id: 'in2', title: 'Foundation Phase file inspection', type: 'file', date: addDays(today, -3), dueDate: addDays(today, 1), ownerStaffId: 'st-5', staffIds: ['st-4', 'st-13', 'st-15', 'st-5'], notes: '', items: { 'st-4': { status: 'done', comment: '', by: 'Mrs L. Venter' }, 'st-13': { status: 'followup', comment: 'Assessment record incomplete', by: 'Mrs L. Venter' } } },
+    { id: 'in3', title: 'Term 4 moderation (Gr 7)', type: 'moderation', date: addDays(today, 10), ownerStaffId: 'st-deputy', staffIds: ['st-6', 'st-10', 'st-12', 'st-16'], notes: '', items: {} },
+  ];
+
   const members = staff.filter((s) => s.uid).map((s) => ({ id: s.uid, role: s.id === 'st-owner' ? 'owner' : s.id === 'st-deputy' ? 'admin' : 'teacher', staffId: s.id, name: s.name, email: s.email }));
 
   return {
@@ -127,6 +152,7 @@ export function seed() {
         { id: 'l4', actorUid: 'system', actorName: 'System', action: 'billing.update', summary: 'Payment received (School, monthly) – R599.00', at: daysAgo(7) },
       ],
       imports: [],
+      relief, exams, inspections,
     },
   };
 }

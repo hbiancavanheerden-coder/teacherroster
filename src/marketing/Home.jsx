@@ -13,9 +13,9 @@ export const FEATURES = [
   ['swap', 'Swaps without the WhatsApp chaos', 'Request, accept, approve. The roster updates itself.'],
 ];
 
-const DUTIES = [['Front gate', '#2952FF'], ['Back gate', '#7C5CFF'], ['Taxi rank', '#FF7A2F'], ['Devotion', '#0F9F74'], ['Aftercare', '#E5484D']];
+const DUTIES = [['Front gate', '#0077D6'], ['Back gate', '#00B4D8'], ['Taxi rank', '#FF7A2F'], ['Devotion', '#0F9F74'], ['Aftercare', '#E5484D']];
 const NAMES = ['NM', 'PV', 'TD', 'AN', 'BK', 'SM', 'LV', 'RK', 'JD', 'MB', 'TS', 'CF'];
-const AV = ['#2952FF', '#7C5CFF', '#FF7A2F', '#0F9F74', '#E5484D', '#0B1124'];
+const AV = ['#0077D6', '#00B4D8', '#FF7A2F', '#0F9F74', '#E5484D', '#0B1124'];
 const MARQUEE = ['Front gate', 'Taxi rank', 'Morning devotion', 'Aftercare', 'Sport supervision', 'Exam invigilation', 'Term dates', 'Duty swaps', 'Away & cover', 'Timetables', 'Parents’ evenings', 'Staff meetings', 'Foundation Phase', 'Intermediate Phase', 'Senior Phase'];
 
 function HeroMock() {
@@ -25,7 +25,7 @@ function HeroMock() {
   return (
     <div className="hero-stage">
       <div className="glow" />
-      <div key={cycle} className="mock go" role="img" aria-label="Staffboard filling a week of duties automatically">
+      <div key={cycle} className="mock go" role="img" aria-label="StaffBoard filling a week of duties automatically">
         <div className="mock-bar"><i /><i /><i /><span className="url">app.staffboard.co.za/roster</span></div>
         <div className="mock-body">
           <div className="mock-side">
@@ -77,7 +77,7 @@ function HeroMock() {
 }
 
 const BENTO = [
-  { cls: 'xl', title: 'A whole term, rostered fairly in one click', text: 'Set your duty points once. Staffboard balances total load and each duty type, respects part-time staff and weekly limits, and skips holidays and absences.', viz: 'bars' },
+  { cls: 'xl', title: 'A whole term, rostered fairly in one click', text: 'Set your duty points once. StaffBoard balances total load and each duty type, respects part-time staff and weekly limits, and skips holidays and absences.', viz: 'bars' },
   { cls: '', title: 'Swaps without the chaos', text: 'Request, accept, approve. Everyone is told, and the roster updates itself.', viz: 'swap' },
   { cls: 'dark', title: 'On every teacher’s phone', text: 'Personal duties, a 06:30 digest and calendar sync. Nothing to install.', viz: 'phone' },
   { cls: 'wide', title: 'One school calendar', text: 'Term dates, exams, sport, meetings and holidays, per phase, with reminders.', viz: 'cal' },
@@ -96,7 +96,7 @@ function Viz({ kind }) {
     </div>
   );
   if (kind === 'cal') {
-    const ev = { 3: '#2952FF', 9: '#FF7A2F', 10: '#FF7A2F', 16: '#7C5CFF', 22: '#0F9F74', 24: '#E5484D', 30: '#2952FF' };
+    const ev = { 3: '#0077D6', 9: '#FF7A2F', 10: '#FF7A2F', 16: '#00B4D8', 22: '#0F9F74', 24: '#E5484D', 30: '#0077D6' };
     return <div className="v-cal">{Array.from({ length: 35 }, (_, i) => <i key={i} className={ev[i] ? 'e' : ''} style={ev[i] ? { '--c': ev[i], '--d': `${(i % 5) * 0.4}s` } : undefined} />)}</div>;
   }
   return (
@@ -121,7 +121,7 @@ export default function Home() {
         <div className="hero">
           <Link to="/demo" className="pill"><b>New</b> Import last term’s roster from a PDF <span aria-hidden="true">→</span></Link>
           <h1><Words text="Duty rosters that *build themselves.*" delay={150} /></h1>
-          <p className="lead reveal in" style={{ '--d': '500ms' }}>Staffboard replaces the spreadsheet, the noticeboard and the WhatsApp group. Generate a fair term of duties in seconds, keep every teacher informed, and handle swaps and absences without the admin.</p>
+          <p className="lead reveal in" style={{ '--d': '500ms' }}>StaffBoard replaces the spreadsheet, the noticeboard and the WhatsApp group. Generate a fair term of duties in seconds, keep every teacher informed, and handle swaps and absences without the admin.</p>
           <div className="hero-cta">
             <Link to="/register" className="btn lg accent">Start your {TRIAL_DAYS}-day free trial <span className="arrow">→</span></Link>
             <Link to="/demo" className="btn lg glass">Explore the live demo</Link>
@@ -144,7 +144,7 @@ export default function Home() {
         <div className="steps">
           {[
             ['Bring what you have', 'Import your staff list from Excel, and last term’s roster or timetable from a PDF, Word file or photo.', 'import'],
-            ['Press auto-schedule', 'Staffboard spreads every gate, taxi and devotion duty fairly across the term, around holidays and absences.', 'bars'],
+            ['Press auto-schedule', 'StaffBoard spreads every gate, taxi and devotion duty fairly across the term, around holidays and absences.', 'bars'],
             ['Everyone just knows', 'Teachers see their duties on their phones, get a morning reminder, and swap without chasing anyone.', 'phone'],
           ].map(([t, p, v], i) => (
             <div key={t} className="step reveal" style={{ '--d': `${i * 120}ms` }}>
@@ -183,7 +183,7 @@ export default function Home() {
 
       {TESTIMONIALS.length > 0 && (
         <section className="section" style={{ paddingTop: 0 }}>
-          <div className="section-head reveal"><div className="eyebrow">From schools using Staffboard</div></div>
+          <div className="section-head reveal"><div className="eyebrow">From schools using StaffBoard</div></div>
           <div className="grid grid-3">
             {TESTIMONIALS.map((t, i) => (
               <figure className="card reveal" key={t.name} style={{ margin: 0, '--d': `${i * 100}ms` }}>
@@ -227,7 +227,7 @@ export default function Home() {
         <div className="cta reveal" onMouseMove={spotlight}>
           <div className="spot" aria-hidden="true" />
           <div className="grid-bg" aria-hidden="true" />
-          <div className="eyebrow" style={{ color: '#9DB2FF' }}>Ready when you are</div>
+          <div className="eyebrow" style={{ color: '#8AD6FF' }}>Ready when you are</div>
           <h2 style={{ maxWidth: 680, margin: '12px auto 14px' }}>Give your deputy principal their <em className="serif-i">afternoons</em> back.</h2>
           <p style={{ maxWidth: 520, margin: '0 auto 26px' }}>Start free for {TRIAL_DAYS} days with every School feature. No card, no commitment.</p>
           <div className="hero-cta" style={{ marginTop: 0 }}>

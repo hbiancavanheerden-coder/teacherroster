@@ -9,6 +9,7 @@ import { generateRoster, isAbsent, loadSpread, suggestSubstitutes } from '../lib
 import { useCollection } from '../lib/data.js';
 import { api } from '../lib/api.js';
 import { tablePDF } from '../lib/pdf.js';
+import { tableImage, shareImage } from '../lib/shareImage.js';
 import { toCSV, download } from '../lib/csv.js';
 import { Icon, Modal, Field, Empty, useAction, useToast } from '../components/ui.jsx';
 import DocumentImport from './DocumentImport.jsx';
@@ -61,6 +62,16 @@ export default function Roster() {
     filename: `duty-roster-${from}.pdf`, title: `${s.school.name} – Duty roster`, subtitle: `${fmtLong(from)} to ${fmtLong(to)}`,
     head: ['Date', ...s.activeCategories.map((c) => c.name)], body: exportRows(), landscape: s.activeCategories.length > 4,
   }), 'PDF downloaded');
+  const shareWeek = () => run(async () => {
+    const open = days.filter((d) => !closed.has(d));
+    const blob = await tableImage({
+      title: span === 1 ? 'Duty roster this week' : 'Duty roster', subtitle: `${fmt(from)} – ${fmt(to, { day: 'numeric', month: 'short', year: 'numeric' })}`, schoolName: s.school.name,
+      head: ['Duty', ...open.slice(0, 5).map((d) => `${dow(d)} ${toDate(d).getDate()}`)],
+      rows: s.activeCategories.map((c) => [c.name, ...open.slice(0, 5).map((d) => duties.data.filter((x) => x.date === d && x.categoryId === c.id).map((x) => s.staffById[x.staffId]?.name || '').join(', ') || '–')]),
+    });
+    const r = await shareImage(blob, `duty-roster-${from}.png`, `Duty roster ${fmt(from)} – ${fmt(to)}`);
+    if (r === 'downloaded') toast('Image downloaded. Post it in the staff group.');
+  });
   const csv = () => download(`duty-roster-${from}.csv`, toCSV([['Date', ...s.activeCategories.map((c) => c.name)], ...exportRows()]));
 
   const requestSwap = (d) => setEditing({ swap: d });
@@ -79,6 +90,7 @@ export default function Roster() {
             {[1, 2, 4].map((n) => <button key={n} className={span === n ? 'active' : ''} onClick={() => setSpan(n)}>{n === 1 ? 'Week' : `${n} weeks`}</button>)}
           </div>
           <button className="btn secondary sm" onClick={pdf}><Icon name="download" />PDF</button>
+          <button className="btn secondary sm" onClick={shareWeek}>Share image</button>
           <button className="btn secondary sm desktop-only" onClick={csv}>CSV</button>
           <button className="btn secondary sm desktop-only" onClick={() => window.print()}><Icon name="print" />Print</button>
           {s.isAdmin && !s.plan.features.publicRoster && <button className="btn secondary sm" onClick={() => setUpsell(true)}><Icon name="users" />Share with staff</button>}
@@ -315,7 +327,7 @@ function GenerateModal({ onClose, defaultFrom, terms, events, absences, onDone }
     </>}>
       {!preview ? (
         <div className="stack">
-          <p className="small muted" style={{ margin: 0 }}>Staffboard fills every open duty slot, choosing the available teacher with the lowest load so far this term. It skips weekends, holidays, days outside your terms, absences, excluded duties and weekly limits.</p>
+          <p className="small muted" style={{ margin: 0 }}>StaffBoard fills every open duty slot, choosing the available teacher with the lowest load so far this term. It skips weekends, holidays, days outside your terms, absences, excluded duties and weekly limits.</p>
           <div className="form-grid">
             <Field label="From"><input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
             <Field label="To"><input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></Field>

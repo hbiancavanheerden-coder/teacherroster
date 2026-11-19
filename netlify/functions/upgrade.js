@@ -40,8 +40,8 @@ export function proposalText({ schoolName, teacher, staffCount, dutyCount, note 
   const p = PLANS.school;
   const hours = Math.max(4, Math.round((staffCount * 0.25) + (dutyCount / 60)));
   return {
-    subject: `${teacher} recommends Staffboard for ${schoolName}`,
-    intro: `${teacher} already uses Staffboard to organise duty rosters at ${schoolName} and would like the whole staff to have it.`,
+    subject: `${teacher} recommends StaffBoard for ${schoolName}`,
+    intro: `${teacher} already uses StaffBoard to organise duty rosters at ${schoolName} and would like the whole staff to have it.`,
     points: [
       `Every teacher sees their own duties live on their phone. No more photos of the noticeboard.`,
       `A free reminder at 06:30 on school days: “You’re on Front gate today”.`,
@@ -79,7 +79,7 @@ export default handler(['GET', 'POST'], async (req) => {
     const ref = db().collection('billingCheckouts').doc();
     await ref.set({ schoolId: school.id, plan: 'school', interval, amount, uid: null, payerEmail: email, via: 'upgrade-link', status: 'pending', createdAt: FieldValue.serverTimestamp() });
     const fields = checkoutFields({
-      paymentId: ref.id, amount, itemName: `Staffboard School (${interval}) – ${school.name}`.slice(0, 100), email, firstName: '',
+      paymentId: ref.id, amount, itemName: `StaffBoard School (${interval}) – ${school.name}`.slice(0, 100), email, firstName: '',
       frequency: interval === 'annual' ? 6 : 3, schoolId: school.id, plan: 'school', interval,
       returnUrl: appUrl(`/upgrade/${p.token}?paid=1`), cancelUrl: appUrl(`/upgrade/${p.token}`), notifyUrl: appUrl('/api/billing-webhook'),
     });
@@ -115,13 +115,13 @@ export default handler(['GET', 'POST'], async (req) => {
       html: `<!doctype html><html><body style="margin:0;background:#F5F7FB;font-family:Arial,sans-serif;color:#0B1124">
         <div style="max-width:580px;margin:0 auto;padding:32px 20px">
           <div style="background:#fff;border:1px solid #E3E7F0;border-radius:16px;padding:28px 24px">
-            <p style="margin:0 0 6px;color:#1E3FD9;font-size:12px;letter-spacing:.12em;text-transform:uppercase">Staffboard for ${esc(school.name)}</p>
+            <p style="margin:0 0 6px;color:#005FAD;font-size:12px;letter-spacing:.12em;text-transform:uppercase">StaffBoard for ${esc(school.name)}</p>
             <h1 style="font-size:22px;margin:0 0 14px">Dear ${esc(name)},</h1>
             <p style="line-height:1.6">${esc(pr.intro)}</p>
-            ${pr.note ? `<blockquote style="margin:14px 0;padding:12px 16px;background:#F3F6FF;border-radius:10px;line-height:1.5">“${esc(pr.note)}”<br><span style="color:#6B7287">— ${esc(member.name || '')}</span></blockquote>` : ''}
+            ${pr.note ? `<blockquote style="margin:14px 0;padding:12px 16px;background:#EEF8FF;border-radius:10px;line-height:1.5">“${esc(pr.note)}”<br><span style="color:#6B7287">— ${esc(member.name || '')}</span></blockquote>` : ''}
             <ul style="line-height:1.7;padding-left:18px">${pr.points.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
             <p style="line-height:1.6"><b>Price:</b> ${esc(pr.price)}</p>
-            <p style="margin:26px 0"><a href="${esc(url)}" style="background:#2952FF;color:#fff;padding:13px 20px;border-radius:10px;text-decoration:none;font-weight:600;display:inline-block">Review and activate for the school</a></p>
+            <p style="margin:26px 0"><a href="${esc(url)}" style="background:#0077D6;color:#fff;padding:13px 20px;border-radius:10px;text-decoration:none;font-weight:600;display:inline-block">Review and activate for the school</a></p>
             <p style="font-size:13px;color:#6B7287;line-height:1.5">The roster ${esc(member.name || 'your colleague')} has set up is kept. Activating simply shares it with every staff member. Payment is by card or Instant EFT through PayFast; need an invoice instead? Just reply to this email.</p>
           </div>
         </div></body></html>`,

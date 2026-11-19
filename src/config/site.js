@@ -1,6 +1,6 @@
 // Brand and marketing settings. Edit these before launch.
 export const SITE = {
-  name: 'Staffboard',
+  name: 'StaffBoard',
   tagline: 'The staffroom noticeboard, finally organised.',
   supportEmail: 'support@yourdomain.co.za', // TODO: set your real support address
   companyName: 'Your Company (Pty) Ltd',     // TODO: legal entity shown in footer and legal pages

@@ -105,6 +105,20 @@ service cloud.firestore {
         allow write: if adminWrite(sid) && feature(sid, 'absences');
       }
 
+      // School-plan tools: relief (class cover), exam invigilation, inspections & moderation.
+      match /relief/{id} {
+        allow read: if isMember(sid);
+        allow write: if adminWrite(sid) && feature(sid, 'relief');
+      }
+      match /exams/{id} {
+        allow read: if isMember(sid);
+        allow write: if adminWrite(sid) && feature(sid, 'invigilation');
+      }
+      match /inspections/{id} {
+        allow read: if isMember(sid);
+        allow write: if adminWrite(sid) && feature(sid, 'inspections');
+      }
+
       // Duty swaps: requester -> target accepts/declines -> admin approves.
       match /swapRequests/{id} {
         allow read: if isMember(sid);

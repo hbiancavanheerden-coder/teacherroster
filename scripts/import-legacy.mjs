@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Imports an old single-file "Staff Duty Register" HTML (DUTIES + TERM_DATES arrays) into a Staffboard workspace.
+// Imports an old single-file "Staff Duty Register" HTML (DUTIES + TERM_DATES arrays) into a StaffBoard workspace.
 //
 // Usage:
 //   node --env-file=.env scripts/import-legacy.mjs <path/to/duty-roster.html> <schoolId> [--dry-run]

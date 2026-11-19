@@ -1,4 +1,4 @@
-# Staffboard
+# StaffBoard
 
 Subscription SaaS for school duty rosters, school calendars, timetables, absences and swaps. Grown out of the single-page *Staff Duty Register* (Term 4 2026). Its look, "Find my duty" search, teacher browser and term-dates modal live on as the **public roster link** (`/r/:token`).
 
@@ -90,7 +90,7 @@ Admins click **Import document** on the Duty roster or Timetable page:
 
 ## 6. Free push notifications & home-screen app
 
-Staffboard is an installable web app (PWA). Teachers can add it to their home screen and get **free push notifications**: a 06:30 school-day reminder of their duties (skipped on holidays), plus duty changes, swaps and announcements.
+StaffBoard is an installable web app (PWA). Teachers can add it to their home screen and get **free push notifications**: a 06:30 school-day reminder of their duties (skipped on holidays), plus duty changes, swaps and announcements.
 - **Works on:** Android (Chrome), desktop browsers, and iPhone/iPad on iOS 16.4+ *after* "Add to Home Screen" (Apple's rule). The app shows step-by-step instructions.
 - **Without an account:** on the shared roster link a teacher picks their name once (remembered on that phone), sees their own duties first, and can turn on notifications.
 - **Setup (once):** run `npx web-push generate-vapid-keys`, then set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:you@…) and `VITE_VAPID_PUBLIC_KEY` (same public key) in Netlify. Keep the private key secret; if you change the keys, everyone has to turn notifications on again.
@@ -101,14 +101,25 @@ Staffboard is an installable web app (PWA). Teachers can add it to their home sc
 | | Teacher (R99) | School (R599) |
 |---|---|---|
 | Purpose | One teacher's organiser | The whole staff, live |
-| Own duties, timetable, calendar, own reminders | ✓ | ✓ |
-| Build / auto-schedule / print a roster, AI import | ✓ | ✓ |
+| Own duties, timetable, calendar, own morning reminders | ✓ | ✓ |
+| Build / auto-schedule / print a roster, AI import, WhatsApp roster image | ✓ | ✓ |
+| One-click SA school terms + public holidays | ✓ | ✓ |
+| Away & cover (find free colleagues for duties) | ✓ | ✓ |
 | Shared roster link, colleagues' calendar links & notifications | – | ✓ |
+| **Relief roster** (cover lessons from the timetable, fair, notified) | – | ✓ |
+| **Exam invigilation roster** (fair, clash-free, own-subject rule) | – | ✓ |
+| **Daily staff briefing** (print / image) and **Staffroom TV** (live screen via secret link) | – | ✓ |
+| **Inspections & moderation planner** (checklists, sign-off, PDF) | – | ✓ |
 | Staff accounts, swaps, email, audit log | – | ✓ |
+
+School-only pages stay visible to Teacher-plan admins with a "School" tag in the menu; opening one explains the feature and offers "Get this for my school" (upgrade or send to principal).
 
 Enforced on the server (`canShare()` in `netlify/functions/_lib/core.js`) on **every request**. If a school drops from a trial or School plan to Teacher, existing shared links, colleague calendar feeds and link notifications pause with a friendly message. The teacher's own reminders keep working.
 
 **Send to my principal:** Teacher-plan users see "Share with staff" prompts (dashboard, roster, staff, settings). The dialog emails the principal a one-page proposal (`/api/upgrade`, reply-to the teacher, max 5 a day), or shares a secure **activation link** (`/upgrade/:token`, valid 60 days) by copy or WhatsApp. The principal or bursar pays for the School plan on that page without an account. PayFast confirms it and the teacher's existing workspace switches to the School plan.
+
+### School term dates
+`src/lib/schoolTerms.js` holds the national public school terms (2026 and 2027, from the gazetted DBE calendars). New schools get this year's and next year's terms and public holidays automatically, and **Term dates → Load 20xx school terms** adds them later. **Add each new year's gazetted dates to that file.** Independent schools set their own dates and can edit them.
 
 ## 8. Importing the existing Term 4 roster
 

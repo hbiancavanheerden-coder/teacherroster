@@ -44,7 +44,7 @@ export default function Absences() {
       <div className="page-head">
         <div>
           <h2>Away &amp; cover</h2>
-          <p className="muted small" style={{ margin: 0 }}>Mark who’s away and Staffboard finds cover for their duties. Leave approval stays in your usual system (e.g. Sage). We don’t store reasons for leave.</p>
+          <p className="muted small" style={{ margin: 0 }}>Mark who’s away and StaffBoard finds cover for their duties. Leave approval stays in your usual system (e.g. Sage). We don’t store reasons for leave.</p>
         </div>
         <button className="btn sm" disabled={!s.canWrite} onClick={() => setEdit({ staffId: '', start: s.today, end: s.today, note: '' })}><Icon name="plus" />Mark someone away</button>
       </div>

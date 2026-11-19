@@ -27,6 +27,10 @@ export default handler(['POST'], async (req) => {
       if (!isAdmin) throw new HttpError(403, 'Only administrators can share the roster.');
       requireFeature(school, 'publicRoster');
       doc = { type: 'roster' };
+    } else if (p.type === 'tv') {
+      if (!isAdmin) throw new HttpError(403, 'Only administrators can set up the staffroom display.');
+      requireFeature(school, 'tvDisplay');
+      doc = { type: 'tv' };
     } else if (p.type === 'ics') {
       if (p.scope === 'school') {
         if (!canShare(school)) throw new HttpError(402, 'Sharing the school calendar with staff is part of the School plan.');

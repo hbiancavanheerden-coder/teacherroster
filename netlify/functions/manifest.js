@@ -4,13 +4,13 @@ export default async (req) => {
   const start = new URL(req.url).searchParams.get('start') || '/app';
   const safe = /^\/(app|r\/[A-Za-z0-9_-]{10,100})$/.test(start) ? start : '/app';
   const body = {
-    name: safe.startsWith('/r/') ? 'Duty roster' : 'Staffboard',
-    short_name: safe.startsWith('/r/') ? 'Duty roster' : 'Staffboard',
+    name: safe.startsWith('/r/') ? 'Duty roster' : 'StaffBoard',
+    short_name: safe.startsWith('/r/') ? 'Duty roster' : 'StaffBoard',
     start_url: safe,
     scope: '/',
     display: 'standalone',
     background_color: '#F5F7FB',
-    theme_color: '#070B1A',
+    theme_color: '#04162B',
     icons: [
       { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },

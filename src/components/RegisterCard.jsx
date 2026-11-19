@@ -1,6 +1,6 @@
 import { dow, fmtLong } from '../lib/dates.js';
 
-const AV = ['#2952FF', '#7C5CFF', '#FF7A2F', '#0F9F74', '#E5484D', '#0B1124', '#0EA5B7', '#B5470C'];
+const AV = ['#0077D6', '#00B4D8', '#FF7A2F', '#0F9F74', '#E5484D', '#0B1124', '#0EA5B7', '#B5470C'];
 export function initials(name = '') {
   const parts = name.replace(/^(mr|mrs|ms|miss|dr|mnr|mev|mej)\.?\s+/i, '').split(/\s+/).filter(Boolean);
   return ((parts[0]?.[0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : parts[0]?.[1] || '')).toUpperCase();

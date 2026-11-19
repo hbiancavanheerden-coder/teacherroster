@@ -1,5 +1,7 @@
 // Creates a new workspace (school or personal) with the caller as owner and starts the free trial.
 import { handler, body, requireUser, db, json, HttpError, FieldValue, billingFor, TRIAL_DAYS, audit } from './_lib/core.js';
+import { SA_PUBLIC_TERMS } from '../../src/lib/schoolTerms.js';
+import { saPublicHolidays } from '../../src/lib/events.js';
 
 const DEFAULT_CATEGORIES = [
   { name: 'Foundation Front', startTime: '07:00', endTime: '07:45', color: '#2F6F5E', phase: 'all' },
@@ -77,6 +79,16 @@ export default handler(['POST'], async (req) => {
     name: cleanOwner, email: (user.email || '').toLowerCase(), uid: user.uid, active: true, phase: 'all',
     department: '', grades: '', position: type === 'school' ? 'Administrator' : '', createdAt: FieldValue.serverTimestamp(),
   });
+  // Start with this year's and next year's national school terms and public holidays (editable).
+  if (useTemplate) {
+    const y = new Date().getFullYear();
+    for (const year of [y, y + 1]) {
+      (SA_PUBLIC_TERMS[year] || []).filter(([, , end]) => end >= new Date().toISOString().slice(0, 10)).forEach(([n, start, end]) => {
+        batch.set(schoolRef.collection('terms').doc(), { name: `${n} ${year}`, start, end, phase: 'all' });
+      });
+      saPublicHolidays(year).forEach((h) => batch.set(schoolRef.collection('events').doc(), { title: h.title, type: 'holiday', phase: 'all', start: h.date, end: null, allDay: true, remindDaysBefore: -1 }));
+    }
+  }
   if (useTemplate) {
     DEFAULT_CATEGORIES.forEach((c, i) => {
       batch.set(schoolRef.collection('dutyCategories').doc(), { ...c, order: i, staffNeeded: 1, days: [1, 2, 3, 4, 5], active: true });

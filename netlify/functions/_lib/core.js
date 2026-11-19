@@ -87,7 +87,7 @@ export function canShare(school) {
   const until = school?.billing?.accessUntil?.toMillis?.() || 0;
   return until > Date.now() && Boolean(effectivePlan(school.billing).features.publicRoster);
 }
-export const SHARE_PAUSED = 'This shared roster is paused. Ask your school to activate the Staffboard School plan to keep sharing it with staff.';
+export const SHARE_PAUSED = 'This shared roster is paused. Ask your school to activate the StaffBoard School plan to keep sharing it with staff.';
 
 export function requireFeature(school, feature) {
   const plan = effectivePlan(school.billing);

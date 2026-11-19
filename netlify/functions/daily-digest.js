@@ -9,7 +9,7 @@ import { addDays, todayISO } from '../../src/lib/dates.js';
 
 export const config = { schedule: '30 4 * * 1-5' };
 
-export function buildDigest({ today, schoolName, duties, categories, events, staffIds, accountStaff }) {
+export function buildDigest({ today, schoolName, duties, categories, events, staffIds, accountStaff, relief = [], exams = [], periods = [] }) {
   const catById = Object.fromEntries(categories.map((c) => [c.id, c]));
   const upcoming = expandEvents(events, today, addDays(today, 14))
     .filter((o) => o.remindDaysBefore !== null && o.remindDaysBefore !== -1)
@@ -23,13 +23,17 @@ export function buildDigest({ today, schoolName, duties, categories, events, sta
     const evs = upcoming.filter((o) => accountStaff.has(staffId) || !o.private);
     const dutyText = mine.map((x) => { const c = catById[x.categoryId] || {}; return `${c.name || 'Duty'}${c.startTime ? ` ${c.startTime}–${c.endTime}` : ''}`; });
     const evText = evs.map((o) => `${o.occurrence === today ? 'Today' : o.occurrence}: ${o.title}${o.startTime && o.allDay === false ? ' at ' + o.startTime : ''}`);
-    if (!dutyText.length && !evText.length) continue;
+    const reliefText = relief.filter((r) => r.coverStaffId === staffId).sort((a, b) => a.periodIndex - b.periodIndex)
+      .map((r) => `Relief ${periods[r.periodIndex]?.name || 'P' + (r.periodIndex + 1)}${periods[r.periodIndex]?.start ? ' ' + periods[r.periodIndex].start : ''}: ${r.className} ${r.subject}${r.room ? ', ' + r.room : ''}`);
+    const examText = exams.filter((x) => (x.invigilatorIds || []).includes(staffId))
+      .map((x) => `Invigilate ${x.startTime}–${x.endTime}: ${x.subject} ${x.grade || ''}${x.venue ? ', ' + x.venue : ''}`);
+    if (!dutyText.length && !evText.length && !reliefText.length && !examText.length) continue;
     recipients.push({
       staffId,
-      title: mine.length ? `☀ You're on duty today: ${dutyText.join(', ')}` : '📅 Coming up at school',
+      title: mine.length ? `☀ You're on duty today: ${dutyText.join(', ')}` : reliefText.length ? `☀ ${reliefText[0]}` : examText.length ? `☀ ${examText[0]}` : '📅 Coming up at school',
       body: mine.length ? `Good morning! Here's your day at ${schoolName}.` : `Reminders from ${schoolName}.`,
-      pushBody: evText.join(' · ') || 'Tap to see today’s roster.',
-      lines: [...dutyText.map((d) => `Duty today: ${d}`), ...evText],
+      pushBody: [...reliefText, ...examText, ...evText].join(' · ') || 'Tap to see today’s roster.',
+      lines: [...dutyText.map((d) => `Duty today: ${d}`), ...reliefText, ...examText, ...evText],
       link: '/app',
     });
   }
@@ -43,12 +47,14 @@ export default async () => {
   for (const s of schools.docs) {
     const school = { id: s.id, ...s.data() };
     const today = todayISO(school.timezone || 'Africa/Johannesburg');
-    const [cats, duties, evs, members, subs] = await Promise.all([
+    const [cats, duties, evs, members, subs, relief, exams] = await Promise.all([
       s.ref.collection('dutyCategories').get(),
       s.ref.collection('duties').where('date', '==', today).get(),
       s.ref.collection('events').get(),
       s.ref.collection('members').get(),
       fs.collection('pushSubscriptions').where('schoolId', '==', s.id).get(),
+      s.ref.collection('relief').where('date', '==', today).get(),
+      s.ref.collection('exams').where('date', '==', today).get(),
     ]);
     const events = evs.docs.map((d) => ({ id: d.id, ...d.data() }));
     if (closedDays(events, today, today).has(today)) continue; // public holiday / school closed
@@ -58,6 +64,7 @@ export default async () => {
     const recipients = buildDigest({
       today, schoolName: school.name, duties: duties.docs.map((d) => d.data()),
       categories: cats.docs.map((d) => ({ id: d.id, ...d.data() })), events, staffIds, accountStaff,
+      relief: relief.docs.map((d) => d.data()), exams: exams.docs.map((d) => d.data()), periods: school.settings?.periods || [],
     });
     const r = await deliver(school, recipients, 'digest');
     emailed += r.emailed; pushed += r.pushed;

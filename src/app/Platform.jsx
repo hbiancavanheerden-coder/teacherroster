@@ -1,4 +1,4 @@
-// Platform owner dashboard: MRR, users and growth across every school on Staffboard.
+// Platform owner dashboard: MRR, users and growth across every school on StaffBoard.
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -78,7 +78,7 @@ export default function Platform() {
         <div>
           <div className="eyebrow">Platform owner</div>
           <h2>Business overview</h2>
-          <p className="muted small" style={{ margin: 0 }}>Across every workspace on Staffboard · updated {new Date(stats.generatedAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}</p>
+          <p className="muted small" style={{ margin: 0 }}>Across every workspace on StaffBoard · updated {new Date(stats.generatedAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}</p>
         </div>
         <button className="btn secondary sm" onClick={() => download('workspaces.csv', toCSV([['Workspace', 'Type', 'Plan', 'Billing', 'Status', 'MRR (R)', 'Created'], ...stats.recentSchools.map((s) => [s.name, s.type, s.plan, s.interval || '', s.status, s.mrr, s.createdAt?.slice(0, 10)])]))}><Icon name="download" />Export</button>
       </div>

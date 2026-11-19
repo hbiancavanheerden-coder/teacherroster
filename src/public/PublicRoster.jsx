@@ -69,7 +69,7 @@ export default function PublicRoster() {
   const termItems = expandEvents(data.events, today.slice(0, 4) + '-01-01', (Number(today.slice(0, 4)) + 1) + '-12-31');
 
   return (
-    <div style={{ minHeight: '100vh', background: 'radial-gradient(900px 420px at 50% -10%, rgba(41,82,255,.14), transparent 60%), var(--bg)', padding: '28px 16px 60px', display: 'flex', justifyContent: 'center' }}>
+    <div style={{ minHeight: '100vh', background: 'radial-gradient(900px 420px at 50% -10%, rgba(0,140,235,.14), transparent 60%), var(--bg)', padding: '28px 16px 60px', display: 'flex', justifyContent: 'center' }}>
       <div style={{ width: '100%', maxWidth: 460 }}>
         <div className="eyebrow center" style={{ marginBottom: 6 }}>{data.school.name}</div>
         <h1 className="center" style={{ fontSize: 28, margin: '0 0 18px' }}>Who’s on duty</h1>

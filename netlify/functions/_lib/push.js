@@ -1,5 +1,5 @@
 // Free Web Push notifications (no per-message cost). Works on Android/desktop browsers and on
-// iPhone/iPad (iOS 16.4+) once Staffboard has been added to the home screen.
+// iPhone/iPad (iOS 16.4+) once StaffBoard has been added to the home screen.
 //
 // Subscriptions live in /pushSubscriptions/{sha256(endpoint)} (server-only):
 //   { schoolId, staffId, uid|null, via: 'account'|'link', endpoint, keys{p256dh, auth}, createdAt, lastOkAt }
