@@ -4,7 +4,6 @@ import { demo } from '../demo/store.js';
 // Calls a Netlify Function with the user's Firebase ID token.
 export async function api(name, payload, { method = 'POST', authed = true } = {}) {
   if (demo.on && authed) {
-    if (name === 'platform-stats') { const { demoPlatformStats } = await import('../demo/seed.js'); return demoPlatformStats(); }
     if (name === 'links' && payload?.action === 'list') return { links: [] };
     if (name === 'notify') return { ok: true };
     throw new Error('That needs a real account. It isn’t available in the live demo. Start a free trial to try it.');

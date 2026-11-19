@@ -131,29 +131,4 @@ export function seed() {
   };
 }
 
-// Sample platform-owner numbers for the demo's Platform page (clearly labelled as sample data).
-export function demoPlatformStats() {
-  const months = [];
-  const d = new Date(); d.setDate(1);
-  for (let i = 11; i >= 0; i--) { const m = new Date(d.getFullYear(), d.getMonth() - i, 1); months.push(`${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`); }
-  const schools = [3, 5, 8, 11, 15, 19, 24, 30, 37, 43, 51, 58];
-  const solos = [6, 9, 14, 20, 27, 33, 41, 48, 55, 61, 70, 79];
-  const rev = months.map((m, i) => ({ month: m, amount: schools[i] * PLANS.school.monthly + solos[i] * PLANS.solo.monthly }));
-  const mrr = rev[rev.length - 1].amount;
-  return {
-    sample: true,
-    generatedAt: new Date().toISOString(),
-    kpis: { mrr, arr: mrr * 12, payingSchools: 58 + 79, trialing: 23, workspaces: 196, users: 2140, staffAccounts: 1987, newLast30: 31, trialConversion: 41, arpa: Math.round(mrr / (58 + 79)) },
-    status: { trialing: 23, active: 131, past_due: 6, cancelled: 14, expired: 22 },
-    byPlan: { solo: { schools: 79, mrr: 79 * PLANS.solo.monthly }, school: { schools: 58, mrr: 58 * PLANS.school.monthly } },
-    revenueByMonth: rev,
-    signupsByMonth: months.map((m, i) => ({ month: m, count: [8, 11, 14, 12, 17, 19, 22, 21, 26, 24, 29, 31][i] })),
-    recentSchools: [
-      ['Hoërskool Noordkrans', 'school', 'trialing', 0], ['Laerskool Die Wilgers', 'school', 'active', 599], ['St Mary’s Primary', 'school', 'active', 599],
-      ['Ms K. Pillay', 'personal', 'active', 99], ['Thuto-Lesedi Primary', 'school', 'past_due', 599], ['Mr R. Jacobs', 'personal', 'trialing', 0],
-      ['Rietvlei Combined School', 'school', 'active', 499], ['Mrs L. Steyn', 'personal', 'active', 83],
-    ].map(([name, type, status, m], i) => ({ id: 'x' + i, name, type, plan: type === 'school' ? 'school' : 'solo', interval: m === 499 || m === 83 ? 'annual' : 'monthly', status, mrr: m, createdAt: new Date(Date.now() - i * 3 * 86400000).toISOString() })),
-  };
-}
-
 demo.registerSeed(seed);

@@ -92,7 +92,8 @@ export default function Billing() {
           <button className={interval === 'annual' ? 'active' : ''} onClick={() => setInterval('annual')}>Annual · 2 months free</button>
         </div>
       </div>
-      <PlanCards interval={interval} onChoose={choose} current={b} busy={busy} />
+      <PlanCards interval={interval} onChoose={choose} current={b} busy={busy} only={s.school.type === 'personal' ? ['solo', 'school'] : ['school']} />
+      {s.school.type === 'personal' && <p className="small muted center" style={{ margin: 0 }}>Choosing <b>School</b> turns this into your school’s workspace and shares it with all staff. Want the school to pay? Use “Share with staff” → “Send to my principal”.</p>}
       <p className="small muted">You’ll pay securely on PayFast in Rand (card, Instant EFT and other methods PayFast supports for subscriptions). Changing plan starts the new subscription immediately and cancels the old one. Need an invoice or EFT for the full year? Contact support.</p>
     </div>
   );

@@ -61,6 +61,8 @@ export async function handleItn(itn) {
     if (cur.token && token && cur.token !== token) {
       try { await subscriptionApi(cur.token, 'cancel'); } catch (e) { console.error('Could not cancel previous subscription', e.message); }
     }
+    // A personal workspace that a school pays for becomes the school's workspace.
+    if (plan === 'school') await ref.update({ type: 'school' }).catch(() => {});
     await updateBilling(schoolId, {
       plan, status: 'active', accessUntilMs,
       extra: { interval, token, provider: 'payfast', amount: gross, lastPaymentAt: new Date(), lastReference: itn.pf_payment_id || null, cancelAtPeriodEnd: false, nextPaymentDate: new Date(accessUntilMs - GRACE_DAYS * DAY).toISOString().slice(0, 10) },

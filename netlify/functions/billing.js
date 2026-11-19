@@ -13,6 +13,8 @@ export default handler(['POST'], async (req) => {
     const { school, member, schoolRef } = await requireMember(user.uid, p.schoolId, ['owner', 'admin']);
     const plan = PLANS[p.plan];
     if (!plan || !['monthly', 'annual'].includes(p.interval)) throw new HttpError(400, 'Choose a plan and billing period.');
+    // A school workspace is always on the School plan; the Teacher plan is for personal workspaces only.
+    if (school.type !== 'personal' && p.plan !== 'school') throw new HttpError(400, 'School workspaces use the School plan. The Teacher plan is for individual teachers.');
     const members = (await schoolRef.collection('members').count().get()).data().count;
     if (members > plan.seats) throw new HttpError(400, `This workspace has ${members} staff accounts; the ${plan.name} plan allows ${plan.seats}. Remove accounts or choose a larger plan.`);
     if (school.billing?.status === 'active' && school.billing?.plan === p.plan && school.billing?.interval === p.interval) {

@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import { PLANS, PLAN_ORDER, TRIAL_DAYS, formatRand } from '../config/plans.js';
 import { useReveal } from '../components/motion.jsx';
 
-export function PlanCards({ interval, onChoose, current, busy }) {
+export function PlanCards({ interval, onChoose, current, busy, only = PLAN_ORDER }) {
   return (
-    <div className="grid grid-2" style={{ maxWidth: 880, margin: '0 auto', width: '100%' }}>
-      {PLAN_ORDER.map((id) => {
+    <div className={only.length > 1 ? 'grid grid-2' : 'grid'} style={{ maxWidth: only.length > 1 ? 880 : 460, margin: '0 auto', width: '100%' }}>
+      {only.map((id) => {
         const p = PLANS[id];
         const price = interval === 'annual' ? p.annual : p.monthly;
         const isCurrent = current && current.plan === id && current.interval === interval && current.status === 'active';

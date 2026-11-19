@@ -34,8 +34,17 @@ export default handler(['POST'], async (req) => {
   const userRef = fs.collection('users').doc(user.uid);
   const userSnap = await userRef.get();
   const existing = userSnap.exists ? userSnap.data() : {};
-  const owned = Object.values(existing.schools || {}).filter((s) => s.role === 'owner').length;
-  if (owned >= 5) throw new HttpError(400, 'You can own up to 5 workspaces. Contact support if you need more.');
+  const ownedIds = Object.entries(existing.schools || {}).filter(([, s]) => s.role === 'owner').map(([id]) => id);
+  if (ownedIds.length >= 5) throw new HttpError(400, 'You can own up to 5 workspaces. Contact support if you need more.');
+
+  // Individuals get one personal workspace, and can't open a school workspace themselves:
+  // their school comes on board by upgrading that workspace ("Send to my principal").
+  const ownedDocs = await Promise.all(ownedIds.map((id) => fs.collection('schools').doc(id).get()));
+  const hasPersonal = ownedDocs.some((d) => d.exists && d.data().type === 'personal');
+  if (hasPersonal && type === 'personal') throw new HttpError(400, 'You already have your personal workspace.');
+  if (hasPersonal && type === 'school') {
+    throw new HttpError(403, 'Your account is an individual (Teacher) account. To bring your school on board, open “Share with staff” and choose “Send to my principal”. That upgrades your existing workspace for the whole school.');
+  }
 
   // One free trial per account; additional workspaces start unpaid.
   const trialUsed = Boolean(existing.trialUsed);
@@ -78,7 +87,7 @@ export default handler(['POST'], async (req) => {
     displayName: existing.displayName || cleanOwner,
     activeSchoolId: schoolRef.id,
     trialUsed: true,
-    schools: { ...(existing.schools || {}), [schoolRef.id]: { name: cleanName, role: 'owner' } },
+    schools: { ...(existing.schools || {}), [schoolRef.id]: { name: cleanName, role: 'owner', type } },
     updatedAt: FieldValue.serverTimestamp(),
   }, { merge: true });
   await batch.commit();

@@ -10,7 +10,7 @@ import { demo } from '../demo/store.js';
 
 // The SaaS owner (you). UI hint only; the server checks PLATFORM_ADMIN_EMAILS.
 export function isPlatformOwner(user) {
-  if (demo.on) return demo.persona === 'owner';
+  if (demo.on) return false; // the public demo never shows the platform owner's business numbers
   const list = String(import.meta.env.VITE_PLATFORM_ADMIN_EMAILS || '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
   return Boolean(user?.email && list.includes(user.email.toLowerCase()));
 }
@@ -120,7 +120,7 @@ export default function AppLayout({ children }) {
         <div className="nav-group">
           <NavLink to="/app/notifications" className="nav-link"><Icon name="bell" />Notifications{unread.data.length > 0 && <span className="count">{unread.data.length}</span>}</NavLink>
           <NavLink to="/app/account" className="nav-link"><Avatar name={s.member.name || user.email} size={20} /><span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.member.name || user.email}</span></NavLink>
-          {s.isOwner && <NavLink to="/app/onboarding" className="nav-link"><Icon name="plus" />New workspace</NavLink>}
+          {s.isOwner && s.school.type !== 'personal' && <NavLink to="/app/onboarding" className="nav-link"><Icon name="plus" />New school workspace</NavLink>}
           <button className="nav-link" style={{ background: 'none', border: 0, cursor: 'pointer', width: '100%' }} onClick={async () => { await signOut(); nav('/'); }}><Icon name="logout" />Sign out</button>
         </div>
       </aside>

@@ -82,7 +82,6 @@ export default function Platform() {
         </div>
         <button className="btn secondary sm" onClick={() => download('workspaces.csv', toCSV([['Workspace', 'Type', 'Plan', 'Billing', 'Status', 'MRR (R)', 'Created'], ...stats.recentSchools.map((s) => [s.name, s.type, s.plan, s.interval || '', s.status, s.mrr, s.createdAt?.slice(0, 10)])]))}><Icon name="download" />Export</button>
       </div>
-      {stats.sample && <div className="info-box"><b>Sample numbers.</b> This is the demo. Your real dashboard shows live figures from PayFast payments and sign-ups once the site is running.</div>}
 
       <div className="grid grid-4">
         <div className="kpi hero-kpi"><div className="stat">{formatRand(k.mrr)}</div><div className="stat-label">Monthly recurring revenue{growth !== null && <> · <span style={{ color: growth >= 0 ? '#7CE7D6' : '#FFB4B4' }}>{growth >= 0 ? '▲' : '▼'} {Math.abs(growth)}%</span></>}</div></div>
