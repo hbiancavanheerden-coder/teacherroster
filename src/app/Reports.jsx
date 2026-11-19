@@ -39,7 +39,7 @@ export default function Reports() {
   const avg = totals.length ? totals.reduce((a, b) => a + b, 0) / totals.length : 0;
   const max = Math.max(1, ...totals);
 
-  const head = ['Teacher', 'Total', ...cats.map((c) => c.name), 'Hours', 'Absent days'];
+  const head = ['Teacher', 'Total', ...cats.map((c) => c.name), 'Hours', 'Days away'];
   const body = rows.map((r) => [r.x.name, r.total, ...cats.map((c) => r.per[c.id]), r.hours, r.absentDays]);
   const pdf = () => run(() => tablePDF({ filename: `workload-${from}-${to}.pdf`, title: `${s.school.name} – Duty workload`, subtitle: `${fmtMed(from)} – ${fmtMed(to)} · average ${avg.toFixed(1)} duties per teacher`, head, body: body.map((r) => r.map(String)), landscape: cats.length > 4 }));
   const csv = () => download(`workload-${from}-${to}.csv`, toCSV([head, ...body]));
@@ -77,7 +77,7 @@ export default function Reports() {
             <th><button className="btn ghost sm" style={{ padding: 0 }} onClick={() => setSort('total')}>Total ▾</button></th>
             <th style={{ width: '22%' }} />
             {cats.map((c) => <th key={c.id} className="desktop-only">{c.name}</th>)}
-            <th>Hours</th><th className="desktop-only">Absent days</th>
+            <th>Hours</th><th className="desktop-only">Days away</th>
           </tr></thead>
           <tbody>{rows.map((r) => (
             <tr key={r.x.id}>

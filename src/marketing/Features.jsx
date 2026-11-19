@@ -11,10 +11,10 @@ const GROUPS = [
       'Set how many staff each duty needs and which weekdays it runs',
       'Automatic fair rotation that balances total and per-duty load',
       'Part-time staff weighting, weekly limits and duty exclusions',
-      'Skips public holidays, closed days and recorded absences',
+      'Skips public holidays, closed days and staff marked away',
       'Edit any slot by hand; changes notify the teachers affected',
       'Already have a roster? Upload the PDF, Word or Excel file, or a photo, and AI reads it in',
-      'Conflict detection: double bookings, absences and lesson clashes',
+      'Conflict detection: double bookings, staff away and lesson clashes',
     ],
   },
   {
@@ -24,7 +24,6 @@ const GROUPS = [
     items: [
       'Personal “My duties” view with upcoming and past duties',
       'Swap requests to a colleague with deputy approval',
-      'Report an absence from their phone',
       'Morning email digest of today’s duties and events',
       'Subscribe to their duties in Google, Outlook or Apple Calendar',
       'A shared roster link (School plan) that staff open without logging in, with free morning reminders',

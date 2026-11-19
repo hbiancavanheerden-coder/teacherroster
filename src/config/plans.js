@@ -52,7 +52,7 @@ export const PLANS = {
       'Shared roster link: staff see it live, no login needed',
       'Free morning reminders for every teacher',
       'Up to 150 staff accounts with personal dashboards',
-      'Duty swaps, absences and substitute cover',
+      'Duty swaps, plus “away & cover” for every duty',
       'Email notifications, audit log and workload reports',
     ],
   },

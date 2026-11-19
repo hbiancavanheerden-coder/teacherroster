@@ -58,8 +58,8 @@ export function seed() {
   }));
   const cats = CATS.map(([id, name, color, startTime, endTime, need], i) => ({ id, name, color, startTime, endTime, staffNeeded: need, order: i, days: id === 'c-dev' ? [1, 3, 5] : [1, 2, 3, 4, 5], phase: 'all', active: true }));
   const absences = [
-    { id: 'ab1', staffId: 'st-7', start: today, end: addDays(today, 1), reason: 'Sick leave', note: '', status: 'approved', createdBy: 'demo-owner', createdAt: daysAgo(0) },
-    { id: 'ab2', staffId: 'st-10', start: addDays(today, 6), end: addDays(today, 7), reason: 'Training / workshop', note: 'District moderation', status: 'reported', createdBy: 'demo-u-st-10', createdAt: daysAgo(1) },
+    { id: 'ab1', staffId: 'st-7', start: today, end: addDays(today, 1), note: '', status: 'away', createdBy: 'demo-owner', createdAt: daysAgo(0) },
+    { id: 'ab2', staffId: 'st-10', start: addDays(today, 6), end: addDays(today, 7), note: 'District moderation', status: 'away', createdBy: 'demo-owner', createdAt: daysAgo(1) },
   ];
   const closed = new Set([holiday]);
   const { assignments } = generateRoster({ start: termStart, end: termEnd, categories: cats, staff: staff.filter((s) => s.id !== 'st-owner' || true), absences: absences.filter((a) => a.start > today), closed, options: { seed: 11 } });
@@ -117,13 +117,13 @@ export function seed() {
       notifications: [
         { id: 'n1', toUid: 'demo-teacher', title: 'Mr S. Naidoo asked you to take a duty', body: 'Would you take over a duty this week?', link: '/app/swaps', read: false, createdAt: daysAgo(0) },
         { id: 'n2', toUid: 'demo-teacher', title: 'Your duty roster has been published', body: 'You have new duties this term.', link: '/app/my-duties', read: true, createdAt: daysAgo(5) },
-        { id: 'n3', toUid: 'demo-owner', title: 'Mrs D. Fourie is absent next week', body: '2 duty slot(s) need a substitute.', link: '/app/absences', read: false, createdAt: daysAgo(1) },
+        { id: 'n3', toUid: 'demo-owner', title: 'Mrs D. Fourie is away next week', body: 'Her duties need cover.', link: '/app/absences', read: false, createdAt: daysAgo(1) },
         { id: 'n4', toUid: 'demo-owner', title: 'Duty swap accepted', body: 'Mr K. Sithole agreed to take Taxi rank from Mr S. Naidoo. It needs your approval.', link: '/app/swaps', read: false, createdAt: daysAgo(1) },
       ],
       auditLogs: [
         { id: 'l1', actorUid: 'demo-owner', actorName: 'Mrs A. Botha', action: 'roster.generate', summary: `Auto-scheduled ${duties.length} duties for Term 4`, at: daysAgo(30) },
         { id: 'l2', actorUid: 'demo-u-st-deputy', actorName: 'Mr J. van Wyk', action: 'event.create', summary: 'Added event “Grade 4–7 exams”', at: daysAgo(3) },
-        { id: 'l3', actorUid: 'demo-owner', actorName: 'Mrs A. Botha', action: 'absence.create', summary: 'Mrs R. Khumalo absent today', at: daysAgo(0) },
+        { id: 'l3', actorUid: 'demo-owner', actorName: 'Mrs A. Botha', action: 'away.create', summary: 'Mrs R. Khumalo away today', at: daysAgo(0) },
         { id: 'l4', actorUid: 'system', actorName: 'System', action: 'billing.update', summary: 'Payment received (School, monthly) – R599.00', at: daysAgo(7) },
       ],
       imports: [],

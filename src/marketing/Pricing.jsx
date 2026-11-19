@@ -47,7 +47,7 @@ const ROWS = [
   ['Calendar links for colleagues & school calendar feed', '–', '✓'],
   ['Staff accounts & personal dashboards', '–', '✓'],
   ['Duty swaps with approval', '–', '✓'],
-  ['Absences & substitute cover for all staff', '–', '✓'],
+  ['Away & duty cover (find who’s free)', '✓', '✓'],
   ['Email notifications', '–', '✓'],
   ['Audit log', '–', '✓'],
 ];

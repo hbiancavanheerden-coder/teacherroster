@@ -25,11 +25,11 @@ const NAV = [
   ] },
   { group: 'Staff', items: [
     ['/app/swaps', 'swap', 'Swaps', 'swaps'],
-    ['/app/absences', 'absent', 'Absences'],
     ['/app/announcements', 'megaphone', 'Announcements'],
     ['/app/staff', 'users', 'Staff'],
   ] },
   { group: 'Admin', admin: true, items: [
+    ['/app/absences', 'absent', 'Away & cover'],
     ['/app/terms', 'clock', 'Term dates'],
     ['/app/reports', 'chart', 'Reports'],
     ['/app/audit', 'log', 'Audit log', 'auditLog'],
@@ -40,7 +40,7 @@ const NAV = [
 
 const TITLES = {
   '/app': 'Today', '/app/my-duties': 'My duties', '/app/roster': 'Duty roster', '/app/calendar': 'Calendar',
-  '/app/timetable': 'Timetable', '/app/swaps': 'Duty swaps', '/app/absences': 'Absences & substitutes',
+  '/app/timetable': 'Timetable', '/app/swaps': 'Duty swaps', '/app/absences': 'Away & cover',
   '/app/announcements': 'Announcements', '/app/staff': 'Staff', '/app/terms': 'Term dates', '/app/reports': 'Reports',
   '/app/audit': 'Audit log', '/app/settings': 'Settings', '/app/billing': 'Billing', '/app/account': 'My account',
   '/app/notifications': 'Notifications', '/app/onboarding': 'New workspace', '/app/platform': 'Platform overview',

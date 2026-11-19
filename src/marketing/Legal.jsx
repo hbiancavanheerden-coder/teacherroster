@@ -21,7 +21,7 @@ const DOCS = {
     title: 'Privacy policy (POPIA)',
     body: [
       ['Responsible party', `${SITE.companyName} acts as an operator on behalf of your school (the responsible party) for staff data, and as responsible party for account and billing data. Contact: ${SITE.supportEmail}.`],
-      ['What we collect', 'Account details (name, email), staff records your school enters (name, email, phone, department, grades, phase), duty, calendar, timetable and absence data, and billing references from PayFast. We do not collect learner information.'],
+      ['What we collect', 'Account details (name, email), staff records your school enters (name, email, phone, department, grades, phase), duty, calendar, timetable and data on which staff are away (no reasons for leave), and billing references from PayFast. We do not collect learner information.'],
       ['Why we use it', 'To provide rosters, calendars, notifications and billing, to secure the service, and to provide support. We do not sell personal information or use it for advertising.'],
       ['Where it is stored', 'Data is stored on Google Cloud (Firebase) and may be processed outside South Africa under appropriate safeguards (section 72 of POPIA). Emails are sent via Resend. Documents you upload for import are read by Anthropic (Claude) and deleted immediately after reading. Payments are handled by PayFast.'],
       ['Sharing', 'Data is visible only to members of your school workspace. If an administrator creates a public roster link, staff names and duties on that roster are visible to anyone with the link until it is revoked.'],

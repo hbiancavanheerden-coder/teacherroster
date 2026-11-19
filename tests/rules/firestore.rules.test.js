@@ -77,11 +77,10 @@ describe('roles and billing', () => {
 });
 
 describe('teacher self-service', () => {
-  it('teachers report only their own absence', async () => {
-    const base = { start: '2026-10-07', end: '2026-10-07', status: 'reported', createdBy: 'teacher' };
-    await assertSucceeds(addDoc(collection(as('teacher'), 'schools/A/absences'), { ...base, staffId: 'st_teacher' }));
-    await assertFails(addDoc(collection(as('teacher'), 'schools/A/absences'), { ...base, staffId: 'st_t2' }));
-    await assertFails(addDoc(collection(as('teacher'), 'schools/A/absences'), { ...base, staffId: 'st_teacher', status: 'approved' }));
+  it('only admins mark staff away', async () => {
+    const away = { staffId: 'st_teacher', start: '2026-10-07', end: '2026-10-07', status: 'away', createdBy: 'teacher' };
+    await assertFails(addDoc(collection(as('teacher'), 'schools/A/absences'), away));
+    await assertSucceeds(addDoc(collection(as('admin'), 'schools/A/absences'), { ...away, createdBy: 'admin' }));
   });
   it('swap flow: own duty only, target accepts, only admin approves', async () => {
     const ref = doc(as('teacher'), 'schools/A/swapRequests/s1');

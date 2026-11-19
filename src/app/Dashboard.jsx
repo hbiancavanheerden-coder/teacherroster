@@ -123,7 +123,7 @@ export default function Dashboard() {
             <div className="grid grid-3">
               <Link to="/app/roster" className="card flat" style={{ textDecoration: 'none', color: 'inherit' }}><div className="stat" style={{ color: unfilled.length ? 'var(--red)' : undefined }}>{unfilled.length}</div><div className="stat-label">Open slots (7 days)</div></Link>
               <Link to="/app/roster" className="card flat" style={{ textDecoration: 'none', color: 'inherit' }}><div className="stat" style={{ color: conflicts.length ? 'var(--red)' : undefined }}>{conflicts.length}</div><div className="stat-label">Conflicts</div></Link>
-              <Link to="/app/absences" className="card flat" style={{ textDecoration: 'none', color: 'inherit' }}><div className="stat">{absentToday.length}</div><div className="stat-label">Absent today</div></Link>
+              <Link to="/app/absences" className="card flat" style={{ textDecoration: 'none', color: 'inherit' }}><div className="stat">{absentToday.length}</div><div className="stat-label">Away today</div></Link>
             </div>
           )}
 

@@ -99,20 +99,10 @@ service cloud.firestore {
         allow write: if adminWrite(sid);
       }
 
-      // Teachers may report their own absence; admins manage all absences.
+      // "Away & cover": administrators mark who is away so duties get covered (leave approval lives elsewhere).
       match /absences/{id} {
         allow read: if isMember(sid);
-        allow create: if active(sid) && feature(sid, 'absences') && (
-          isAdmin(sid) || (
-            isMember(sid)
-            && request.resource.data.staffId == myStaffId(sid)
-            && request.resource.data.status == 'reported'
-            && request.resource.data.createdBy == request.auth.uid));
-        allow update: if active(sid) && (isAdmin(sid) || (
-            resource.data.createdBy == request.auth.uid && resource.data.status == 'reported'
-            && request.resource.data.status in ['reported', 'cancelled']
-            && onlyChanges(['start', 'end', 'reason', 'status', 'updatedAt'])));
-        allow delete: if isAdmin(sid);
+        allow write: if adminWrite(sid) && feature(sid, 'absences');
       }
 
       // Duty swaps: requester -> target accepts/declines -> admin approves.

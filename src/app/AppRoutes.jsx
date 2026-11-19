@@ -54,7 +54,7 @@ function Inner() {
           <Route path="terms" element={<P.Terms />} />
           <Route path="staff" element={<P.Staff />} />
           <Route path="timetable" element={<P.Timetable />} />
-          <Route path="absences" element={<P.Absences />} />
+          <Route path="absences" element={<AdminOnly><P.Absences /></AdminOnly>} />
           <Route path="swaps" element={<P.Swaps />} />
           <Route path="announcements" element={<P.Announcements />} />
           <Route path="reports" element={<AdminOnly><P.Reports /></AdminOnly>} />

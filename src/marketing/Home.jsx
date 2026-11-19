@@ -16,7 +16,7 @@ export const FEATURES = [
 const DUTIES = [['Front gate', '#2952FF'], ['Back gate', '#7C5CFF'], ['Taxi rank', '#FF7A2F'], ['Devotion', '#0F9F74'], ['Aftercare', '#E5484D']];
 const NAMES = ['NM', 'PV', 'TD', 'AN', 'BK', 'SM', 'LV', 'RK', 'JD', 'MB', 'TS', 'CF'];
 const AV = ['#2952FF', '#7C5CFF', '#FF7A2F', '#0F9F74', '#E5484D', '#0B1124'];
-const MARQUEE = ['Front gate', 'Taxi rank', 'Morning devotion', 'Aftercare', 'Sport supervision', 'Exam invigilation', 'Term dates', 'Duty swaps', 'Absences & cover', 'Timetables', 'Parents’ evenings', 'Staff meetings', 'Foundation Phase', 'Intermediate Phase', 'Senior Phase'];
+const MARQUEE = ['Front gate', 'Taxi rank', 'Morning devotion', 'Aftercare', 'Sport supervision', 'Exam invigilation', 'Term dates', 'Duty swaps', 'Away & cover', 'Timetables', 'Parents’ evenings', 'Staff meetings', 'Foundation Phase', 'Intermediate Phase', 'Senior Phase'];
 
 function HeroMock() {
   const [cycle, setCycle] = useState(0);
@@ -29,7 +29,7 @@ function HeroMock() {
         <div className="mock-bar"><i /><i /><i /><span className="url">app.staffboard.co.za/roster</span></div>
         <div className="mock-body">
           <div className="mock-side">
-            {['Today', 'My duties', 'Duty roster', 'Calendar', 'Timetable', 'Swaps', 'Absences', 'Reports'].map((x) => <span key={x} className={x === 'Duty roster' ? 'on' : ''}>{x}</span>)}
+            {['Today', 'My duties', 'Duty roster', 'Calendar', 'Timetable', 'Swaps', 'Away & cover', 'Reports'].map((x) => <span key={x} className={x === 'Duty roster' ? 'on' : ''}>{x}</span>)}
           </div>
           <div className="mock-main">
             <div className="mock-head">
