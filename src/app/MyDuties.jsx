@@ -92,7 +92,7 @@ export default function MyDuties() {
                 <button className="btn secondary sm" onClick={pdf}><Icon name="download" />PDF</button>
                 <button className="btn secondary sm" onClick={ics}><Icon name="calendar" />Download .ics</button>
               </div>
-              {(who === s.myStaffId || s.isAdmin) && <CalendarFeed staffId={who} />}
+              {(who === s.myStaffId || (s.isAdmin && s.plan.features.publicRoster)) && <CalendarFeed staffId={who} />}
             </div>
           </div>
         </div>

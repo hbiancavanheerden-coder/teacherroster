@@ -26,7 +26,7 @@ export default function Onboarding({ allowNew }) {
   const form = (
     <form className="stack" onSubmit={submit}>
       <div className="grid grid-2">
-        {[['school', 'For my school', 'Invite your staff. Everyone sees their own duties.'], ['personal', 'Just for me', 'I manage the roster and share a read-only link.']].map(([v, t, d]) => (
+        {[['school', 'For my school', 'Invite your staff. Everyone sees their own duties.'], ['personal', 'Just for me', 'My own duties, timetable and reminders. Share with staff later.']].map(([v, t, d]) => (
           <label key={v} className="card flat" style={{ cursor: 'pointer', borderColor: f.type === v ? 'var(--ink)' : undefined, borderWidth: f.type === v ? 2 : 1 }}>
             <div className="row"><input type="radio" name="type" value={v} checked={f.type === v} onChange={set('type')} /><b>{t}</b></div>
             <div className="small muted" style={{ marginTop: 6 }}>{d}</div>

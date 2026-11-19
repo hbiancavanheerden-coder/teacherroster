@@ -81,6 +81,14 @@ export function requireActive(school) {
   if (until < Date.now()) throw new HttpError(402, 'This workspace\'s trial or subscription has ended. Please choose a plan to continue.');
 }
 
+// Sharing live with colleagues (shared roster link, school/colleague calendar feeds, link notifications)
+// needs an active School plan or trial. Checked on every request, so links pause if a school downgrades.
+export function canShare(school) {
+  const until = school?.billing?.accessUntil?.toMillis?.() || 0;
+  return until > Date.now() && Boolean(effectivePlan(school.billing).features.publicRoster);
+}
+export const SHARE_PAUSED = 'This shared roster is paused. Ask your school to activate the Staffboard School plan to keep sharing it with staff.';
+
 export function requireFeature(school, feature) {
   const plan = effectivePlan(school.billing);
   if (!plan.features[feature]) throw new HttpError(402, `This feature is part of the School plan. Upgrade to use it.`);

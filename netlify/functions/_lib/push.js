@@ -39,7 +39,7 @@ export function validSubscription(sub) {
  * messages: [{ staffId, title, body, url, tag }]
  * Returns the number of devices reached. Expired subscriptions are removed automatically.
  */
-export async function pushToStaff(schoolId, messages) {
+export async function pushToStaff(schoolId, messages, { includeLinkSubscribers = true } = {}) {
   if (!messages.length || !init()) return 0;
   const fs = db();
   const ids = [...new Set(messages.map((m) => m.staffId))];
@@ -51,6 +51,7 @@ export async function pushToStaff(schoolId, messages) {
   let sent = 0;
   await Promise.all(subs.map(async (doc) => {
     const s = doc.data();
+    if (s.via === 'link' && !includeLinkSubscribers) return;
     const m = messages.find((x) => x.staffId === s.staffId);
     if (!m) return;
     try {

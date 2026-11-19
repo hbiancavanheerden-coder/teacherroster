@@ -1,6 +1,6 @@
 // GET ?token=... -> read-only roster data for the public share page (/r/:token).
 // Exposes first names/display names, duty categories, duties and school calendar only. No emails or phone numbers.
-import { handler, db, json, HttpError } from './_lib/core.js';
+import { handler, db, json, HttpError, canShare, SHARE_PAUSED } from './_lib/core.js';
 
 export default handler(['GET'], async (req) => {
   const t = new URL(req.url).searchParams.get('token');
@@ -10,6 +10,7 @@ export default handler(['GET'], async (req) => {
   const schoolRef = db().collection('schools').doc(link.data().schoolId);
   const school = await schoolRef.get();
   if (!school.exists) throw new HttpError(404, 'Not found');
+  if (!canShare(school.data())) throw new HttpError(402, SHARE_PAUSED);
 
   const from = new Date(Date.now() - 45 * 86400000).toISOString().slice(0, 10);
   const to = new Date(Date.now() + 180 * 86400000).toISOString().slice(0, 10);

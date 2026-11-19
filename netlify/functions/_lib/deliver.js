@@ -1,5 +1,5 @@
 // Delivers a notification to staff: in-app (Firestore) + email (if plan allows and user opted in).
-import { db, FieldValue, effectivePlan, appUrl, esc } from './core.js';
+import { db, FieldValue, effectivePlan, appUrl, esc, canShare } from './core.js';
 import { sendEmail, layout, emailConfigured } from './email.js';
 import { pushToStaff } from './push.js';
 
@@ -22,7 +22,7 @@ export async function deliver(school, recipients, pref) {
     pushed = await pushToStaff(school.id, recipients.map((r) => ({
       staffId: r.staffId, title: r.title, url: r.link || '/app', tag: pref,
       body: (r.pushBody || [r.body, ...(r.lines || [])].filter(Boolean).join(' · ')).slice(0, 220),
-    })));
+    })), { includeLinkSubscribers: canShare(school) });
   } catch (e) { console.error('push delivery failed', e.message); }
 
   for (const r of recipients) {

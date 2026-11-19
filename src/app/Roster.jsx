@@ -12,6 +12,7 @@ import { tablePDF } from '../lib/pdf.js';
 import { toCSV, download } from '../lib/csv.js';
 import { Icon, Modal, Field, Empty, useAction, useToast } from '../components/ui.jsx';
 import DocumentImport from './DocumentImport.jsx';
+import UpgradeModal from './UpgradeModal.jsx';
 
 // Closed = holidays, plus days outside configured terms (when terms exist).
 export function useClosedDays(events, terms, from, to) {
@@ -32,6 +33,7 @@ export default function Roster() {
   const [editing, setEditing] = useState(null);
   const [gen, setGen] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [upsell, setUpsell] = useState(false);
   const from = anchor;
   const to = addDays(anchor, span * 7 - 1);
   const duties = useDutiesRange(from, to);
@@ -79,6 +81,7 @@ export default function Roster() {
           <button className="btn secondary sm" onClick={pdf}><Icon name="download" />PDF</button>
           <button className="btn secondary sm desktop-only" onClick={csv}>CSV</button>
           <button className="btn secondary sm desktop-only" onClick={() => window.print()}><Icon name="print" />Print</button>
+          {s.isAdmin && !s.plan.features.publicRoster && <button className="btn secondary sm" onClick={() => setUpsell(true)}><Icon name="users" />Share with staff</button>}
           {s.isAdmin && <button className="btn secondary sm" disabled={!s.canWrite} onClick={() => setImporting(true)}><Icon name="upload" />Import document</button>}
           {s.isAdmin && <button className="btn sm" disabled={!s.canWrite} onClick={() => setGen(true)}><Icon name="wand" />Auto-schedule</button>}
         </div>
@@ -130,6 +133,7 @@ export default function Roster() {
       )}
       {editing?.swap && <SwapRequestModal duty={editing.swap} onClose={() => setEditing(null)} />}
       {importing && <DocumentImport kind="roster" onClose={() => setImporting(false)} />}
+      {upsell && <UpgradeModal onClose={() => setUpsell(false)} />}
       {gen && <GenerateModal onClose={() => setGen(false)} defaultFrom={from} terms={terms.data} events={events.data} absences={absences.data} onDone={(r) => { setGen(false); toast(`Scheduled ${r} duties`); }} />}
     </div>
   );

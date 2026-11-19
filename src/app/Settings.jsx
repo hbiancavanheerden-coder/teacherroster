@@ -5,6 +5,17 @@ import { api } from '../lib/api.js';
 import { PHASES } from '../lib/events.js';
 import { WEEKDAYS } from '../lib/dates.js';
 import { Modal, Field, Icon, useAction, useConfirm, useToast } from '../components/ui.jsx';
+import UpgradeModal, { ShareLocked } from './UpgradeModal.jsx';
+
+function ShareUpsell() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ maxWidth: 760 }}>
+      <ShareLocked title="Share the roster live with your staff" text="A shared roster link (no login needed), free morning reminders on every teacher’s phone, and calendar links for colleagues are part of the School plan. On the Teacher plan you can still print or download the roster as a PDF." onOpen={() => setOpen(true)} />
+      {open && <UpgradeModal onClose={() => setOpen(false)} />}
+    </div>
+  );
+}
 
 const COLORS = ['#2F6F5E', '#3B5BA5', '#C28E3F', '#8E3B7A', '#A23E2E', '#1E2638', '#5B7F2B', '#B5651D'];
 
@@ -21,7 +32,7 @@ export default function Settings() {
       {tab === 'duties' && <Categories />}
       {tab === 'periods' && <Periods />}
       {tab === 'school' && <School />}
-      {tab === 'share' && <Share />}
+      {tab === 'share' && (s.plan.features.publicRoster ? <Share /> : <ShareUpsell />)}
     </div>
   );
 }

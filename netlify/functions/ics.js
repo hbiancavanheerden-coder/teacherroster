@@ -1,5 +1,5 @@
 // Calendar subscription feed: GET /api/ics?token=...  (add to Google Calendar / Outlook / Apple Calendar)
-import { db } from './_lib/core.js';
+import { db, canShare } from './_lib/core.js';
 import { buildICS } from '../../src/lib/ics.js';
 import { expandEvents } from '../../src/lib/events.js';
 
@@ -12,6 +12,11 @@ export default async (req) => {
   const schoolRef = db().collection('schools').doc(schoolId);
   const school = (await schoolRef.get()).data();
   if (!school) return new Response('Not found', { status: 404 });
+  // A teacher's feed of her own duties always works while the workspace is active;
+  // the school calendar and feeds for colleagues are School-plan sharing.
+  const personal = scope === 'staff' && link.data().createdByStaffId === staffId;
+  const active = (school.billing?.accessUntil?.toMillis?.() || 0) > Date.now();
+  if (!(personal ? active : canShare(school))) return new Response('This calendar link is paused. Ask your school to activate the Staffboard School plan.', { status: 402 });
 
   const from = new Date(Date.now() - 60 * 86400000).toISOString().slice(0, 10);
   const to = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10);

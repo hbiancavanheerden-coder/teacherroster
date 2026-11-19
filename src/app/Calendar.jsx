@@ -156,7 +156,7 @@ export default function Calendar() {
         </div>
       )}
 
-      {s.isAdmin && <div className="card no-print"><CalendarFeed scope="school" /></div>}
+      {s.isAdmin && s.plan.features.publicRoster && <div className="card no-print"><CalendarFeed scope="school" /></div>}
       {edit && <EventModal ev={edit} onClose={() => setEdit(null)} />}
     </div>
   );

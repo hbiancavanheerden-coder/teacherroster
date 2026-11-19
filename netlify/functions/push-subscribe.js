@@ -4,7 +4,7 @@
 //   Either:             POST {action:'unsubscribe', endpoint}
 //   Status:             POST {action:'status', endpoint} -> {subscribed, staffId}
 //   Test:               POST {action:'test', endpoint}  -> sends "Notifications are on" to that device
-import { handler, body, requireUser, requireMember, requireActive, db, json, HttpError, FieldValue, appUrl } from './_lib/core.js';
+import { handler, body, requireUser, requireMember, requireActive, canShare, SHARE_PAUSED, db, json, HttpError, FieldValue, appUrl } from './_lib/core.js';
 import { subId, validSubscription, pushConfigured, pushToStaff } from './_lib/push.js';
 
 export default handler(['POST'], async (req) => {
@@ -33,7 +33,7 @@ export default handler(['POST'], async (req) => {
     if (!link.exists || link.data().revoked || link.data().type !== 'roster') throw new HttpError(404, 'This roster link is no longer active.');
     const schoolId = link.data().schoolId;
     const school = (await fs.collection('schools').doc(schoolId).get()).data();
-    requireActive({ ...school });
+    if (!canShare(school)) throw new HttpError(402, SHARE_PAUSED);
     const staff = await fs.collection('schools').doc(schoolId).collection('staff').doc(String(p.staffId || '')).get();
     if (!staff.exists || staff.data().active === false) throw new HttpError(400, 'Choose your name from the list.');
     record = { schoolId, staffId: staff.id, uid: null, via: 'link', linkUrl: appUrl(`/r/${p.token}`) };

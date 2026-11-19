@@ -9,6 +9,7 @@ import { dutyConflicts } from '../lib/conflicts.js';
 import { isAbsent } from '../lib/scheduler.js';
 import RegisterCard from '../components/RegisterCard.jsx';
 import PushCard from '../components/PushCard.jsx';
+import UpgradeModal, { ShareLocked } from './UpgradeModal.jsx';
 import { Icon } from '../components/ui.jsx';
 
 // "Mrs A. Botha" -> "Mrs Botha"; "Nancy Mokoena" -> "Nancy"
@@ -32,6 +33,7 @@ export default function Dashboard() {
   const schoolDays = s.school.settings?.schoolDays || [1, 2, 3, 4, 5];
 
   const strip = useMemo(() => eachDay(addDays(today, -3), addDays(today, 14)).filter((d) => schoolDays.includes(isoWeekday(d))), [today, schoolDays]);
+  const [upsell, setUpsell] = useState(false);
   const [sel, setSel] = useState(schoolDays.includes(isoWeekday(today)) ? today : strip.find((d) => d > today) || today);
 
   const dayRows = s.activeCategories
@@ -77,6 +79,8 @@ export default function Dashboard() {
         {s.isAdmin && <Link to="/app/roster" className="btn"><Icon name="wand" />Plan duties</Link>}
       </div>
 
+      {s.isAdmin && !s.plan.features.publicRoster && <ShareLocked onOpen={() => setUpsell(true)} />}
+      {upsell && <UpgradeModal onClose={() => setUpsell(false)} />}
       {setupLeft.length > 0 && (
         <div className="card">
           <div className="card-head"><h3>Get set up</h3><span className="badge brass">{setup.length - setupLeft.length}/{setup.length} done</span></div>

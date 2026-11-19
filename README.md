@@ -96,7 +96,21 @@ Staffboard is an installable web app (PWA). Teachers can add it to their home sc
 - **Setup (once):** run `npx web-push generate-vapid-keys`, then set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:you@…) and `VITE_VAPID_PUBLIC_KEY` (same public key) in Netlify. Keep the private key secret; if you change the keys, everyone has to turn notifications on again.
 - **Cost:** nothing per message. Email (Resend) stays an optional School-plan extra.
 
-## 7. Importing the existing Term 4 roster
+## 7. Plans: what's personal and what's shared
+
+| | Teacher (R99) | School (R599) |
+|---|---|---|
+| Purpose | One teacher's organiser | The whole staff, live |
+| Own duties, timetable, calendar, own reminders | ✓ | ✓ |
+| Build / auto-schedule / print a roster, AI import | ✓ | ✓ |
+| Shared roster link, colleagues' calendar links & notifications | – | ✓ |
+| Staff accounts, swaps, email, audit log | – | ✓ |
+
+Enforced on the server (`canShare()` in `netlify/functions/_lib/core.js`) on **every request**. If a school drops from a trial or School plan to Teacher, existing shared links, colleague calendar feeds and link notifications pause with a friendly message. The teacher's own reminders keep working.
+
+**Send to my principal:** Teacher-plan users see "Share with staff" prompts (dashboard, roster, staff, settings). The dialog emails the principal a one-page proposal (`/api/upgrade`, reply-to the teacher, max 5 a day), or shares a secure **activation link** (`/upgrade/:token`, valid 60 days) by copy or WhatsApp. The principal or bursar pays for the School plan on that page without an account. PayFast confirms it and the teacher's existing workspace switches to the School plan.
+
+## 8. Importing the existing Term 4 roster
 
 Once you've signed up and created your workspace, copy the school ID from the Firestore console (`schools/{id}`) and run:
 
@@ -106,7 +120,7 @@ node --env-file=.env scripts/import-legacy.mjs ~/Downloads/duty-roster-term-4-20
 ```
 It creates the six duty points, the staff (matched by name; add their emails afterwards to invite them), all 228 duty assignments and the 75 term-date events. Re-running it is safe.
 
-## 8. Launch checklist
+## 9. Launch checklist
 
 - [ ] Fill in `src/config/site.js` (support email, company name). Add real testimonials when you have them; the section stays hidden until then.
 - [ ] Have a lawyer review `src/marketing/Legal.jsx` (terms, POPIA privacy policy). Register an Information Officer with the Information Regulator.
@@ -118,7 +132,7 @@ It creates the six duty points, the staff (matched by name; add their emails aft
 - [ ] Custom domain + HTTPS on Netlify; update `APP_URL`.
 - [ ] Run through: sign up → onboarding → add staff → auto-schedule → invite a teacher (second browser) → accept → swap request → approve → absence → substitute → subscribe with a test card → cancel via "Update card or cancel".
 
-## 9. Maintenance
+## 10. Maintenance
 
 - **Logs:** Netlify → Functions → each function's log (ITN failures return 500 so PayFast retries; rejected ITNs are logged with the reason).
 - **Billing issues:** each school's `billing` map in Firestore shows status, plan, `accessUntil`, the PayFast subscription `token` and last payment reference. Billing changes are written to the school's audit log.

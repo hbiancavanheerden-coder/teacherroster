@@ -27,7 +27,7 @@ const GROUPS = [
       'Report an absence from their phone',
       'Morning email digest of today’s duties and events',
       'Subscribe to their duties in Google, Outlook or Apple Calendar',
-      'A public roster link, like a digital noticeboard, for staff without accounts',
+      'A shared roster link (School plan) that staff open without logging in, with free morning reminders',
     ],
   },
   {

@@ -106,3 +106,13 @@ describe('document import review', () => {
     expect(html).toContain('5A');
   });
 });
+
+import UpgradeModal, { ShareLocked } from '../../src/app/UpgradeModal.jsx';
+describe('teacher-plan upsell', () => {
+  it('renders the share-with-staff prompt and the upgrade modal', () => {
+    expect(render(<ShareLocked onOpen={() => {}} />, 'owner')).toContain('Share this with your staff');
+    const html = render(<UpgradeModal onClose={() => {}} />, 'owner').replace(/<!-- -->/g, '');
+    expect(html).toContain('Ask your principal');
+    expect(html).toContain('R599');
+  });
+});

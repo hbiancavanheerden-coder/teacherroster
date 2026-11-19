@@ -6,6 +6,7 @@ import { api } from '../lib/api.js';
 import { parseCSV, rowsToStaff, toCSV, download } from '../lib/csv.js';
 import { PHASES } from '../lib/events.js';
 import { Modal, Field, Empty, Icon, useAction, useConfirm, useToast } from '../components/ui.jsx';
+import UpgradeModal, { ShareLocked } from './UpgradeModal.jsx';
 
 export default function Staff() {
   const s = useSchool();
@@ -16,6 +17,7 @@ export default function Staff() {
   const [showInactive, setShowInactive] = useState(false);
   const [edit, setEdit] = useState(null);
   const [importing, setImporting] = useState(false);
+  const [upsell, setUpsell] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const [run, busy] = useAction();
   const [confirm, confirmNode] = useConfirm();
@@ -70,7 +72,7 @@ export default function Staff() {
         )}
       </div>
       {s.isAdmin && !s.plan.features.invites && (
-        <div className="info-box">On the Teacher plan, you manage the roster yourself and share it with a <Link to="/app/settings">public roster link</Link>. Upgrade to the School plan to give every teacher their own login. <Link to="/app/billing">See plans</Link></div>
+        <ShareLocked title="Give your staff their own access" text="On the Teacher plan only you can log in. With the School plan every teacher gets their own dashboard, morning reminders, swaps and absences." onOpen={() => setUpsell(true)} />
       )}
 
       {list.length === 0 ? <div className="card"><Empty title="No staff found">{s.isAdmin ? 'Add staff one by one or import a spreadsheet.' : ''}</Empty></div> : (
@@ -114,6 +116,7 @@ export default function Staff() {
       )}
       {edit && <StaffModal staff={edit} onClose={() => setEdit(null)} />}
       {importing && <ImportModal onClose={() => setImporting(false)} />}
+      {upsell && <UpgradeModal onClose={() => setUpsell(false)} />}
     </div>
   );
 }

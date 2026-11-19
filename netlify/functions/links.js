@@ -2,7 +2,7 @@
 //   type 'roster' -> public read-only roster page (/r/:token). Admin only.
 //   type 'ics'    -> calendar subscription feed. Any member for their own duties; admins for the school calendar.
 // POST {schoolId, action:'list'|'create'|'revoke', type, staffId?, token?}
-import { handler, body, requireUser, requireMember, requireActive, requireFeature, db, json, HttpError, FieldValue, token as newToken, audit } from './_lib/core.js';
+import { handler, body, requireUser, requireMember, requireActive, requireFeature, canShare, db, json, HttpError, FieldValue, token as newToken, audit } from './_lib/core.js';
 
 export default handler(['POST'], async (req) => {
   const user = await requireUser(req);
@@ -29,15 +29,17 @@ export default handler(['POST'], async (req) => {
       doc = { type: 'roster' };
     } else if (p.type === 'ics') {
       if (p.scope === 'school') {
+        if (!canShare(school)) throw new HttpError(402, 'Sharing the school calendar with staff is part of the School plan.');
         doc = { type: 'ics', scope: 'school' };
       } else {
         const staffId = p.staffId || member.staffId;
         if (staffId !== member.staffId && !isAdmin) throw new HttpError(403, 'You can only create a feed for your own duties.');
+        if (staffId !== member.staffId && !canShare(school)) throw new HttpError(402, 'Calendar links for colleagues are part of the School plan.');
         doc = { type: 'ics', scope: 'staff', staffId };
       }
     } else throw new HttpError(400, 'Unknown link type');
     const t = newToken(24);
-    await links.doc(t).set({ ...doc, schoolId: school.id, createdBy: user.uid, revoked: false, createdAt: FieldValue.serverTimestamp() });
+    await links.doc(t).set({ ...doc, schoolId: school.id, createdBy: user.uid, createdByStaffId: member.staffId || null, revoked: false, createdAt: FieldValue.serverTimestamp() });
     await audit(school.id, { uid: user.uid, name: member.name }, 'link.create', `Created a ${doc.type === 'roster' ? 'public roster' : 'calendar feed'} link`);
     return json({ token: t });
   }

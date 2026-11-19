@@ -36,18 +36,19 @@ export function PlanCards({ interval, onChoose, current, busy }) {
 }
 
 const ROWS = [
+  ['Who it’s for', 'One teacher', 'The whole staff'],
   ['Login accounts', '1', `Up to ${PLANS.school.seats}`],
-  ['Staff on the roster', 'Unlimited', 'Unlimited'],
-  ['Automatic fair rosters', '✓', '✓'],
-  ['School calendar & term dates', '✓', '✓'],
-  ['Timetables & clash detection', '✓', '✓'],
-  ['Absence & substitute tools', '✓', '✓'],
-  ['Public roster link & calendar feeds', '✓', '✓'],
-  ['PDF / CSV exports', '✓', '✓'],
+  ['Your duties, timetable & school calendar', '✓', '✓'],
+  ['Free morning reminders on your phone', 'You', 'Every teacher'],
   ['AI import of rosters & timetables (PDF, Word, Excel, photo)', '✓', '✓'],
-  ['Staff invitations & personal dashboards', '–', '✓'],
-  ['Duty swap requests', '–', '✓'],
-  ['Email notifications & morning digest', '–', '✓'],
+  ['Build & auto-schedule a fair roster', '✓', '✓'],
+  ['Print / PDF / CSV export', '✓', '✓'],
+  ['Shared roster link for staff (no login)', '–', '✓'],
+  ['Calendar links for colleagues & school calendar feed', '–', '✓'],
+  ['Staff accounts & personal dashboards', '–', '✓'],
+  ['Duty swaps with approval', '–', '✓'],
+  ['Absences & substitute cover for all staff', '–', '✓'],
+  ['Email notifications', '–', '✓'],
   ['Audit log', '–', '✓'],
 ];
 
@@ -67,7 +68,8 @@ export default function Pricing() {
       </section>
       <section className="section" style={{ paddingTop: 0 }}>
         <PlanCards interval={interval} />
-        <p className="center small muted mt-lg">Payments are processed securely by PayFast (card, Instant EFT and other methods PayFast offers).<br />
+        <p className="center small" style={{ maxWidth: 620, margin: '28px auto 0', color: 'var(--ink-2)' }}>Already on the Teacher plan and want your whole staff on board? Use <b>“Send to my principal”</b> inside the app. Your school can activate the School plan with one secure link, and everything you’ve set up is kept.</p>
+        <p className="center small muted mt">Payments are processed securely by PayFast (card, Instant EFT and other methods PayFast offers).<br />
           Need more than {PLANS.school.seats} accounts, a district licence or an invoice? <Link to="/contact">Talk to us</Link>.</p>
       </section>
       <section className="section narrow reveal" style={{ paddingTop: 0 }}>

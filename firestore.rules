@@ -46,6 +46,7 @@ service cloud.firestore {
     match /billingCheckouts/{id} { allow read, write: if false; }
     match /payments/{id} { allow read, write: if false; }
     match /pushSubscriptions/{id} { allow read, write: if false; }
+    match /referrals/{id} { allow read, write: if false; }
 
     // ---------- School workspace ----------
     match /schools/{sid} {
